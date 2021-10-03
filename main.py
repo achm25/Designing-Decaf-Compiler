@@ -10,6 +10,10 @@ NOTEQUAL = 'NOTEQUAL'
 GREATEREQUALS = 'GREATEREQUALS'
 LESSEQUAL = 'LESSEQUAL'
 SIGNS = 'SIGNS'
+AND = 'AND'
+OR = 'OR'
+MINUS = 'MINUS'
+BOOLEAN = 'BOOLEAN'
 
 reserved = {
     '__func__': '__func__',
@@ -49,23 +53,58 @@ tokens = [ID,
           HEXADECIMAL,
           FLOATNUMBER,
           INTNUMBER,
+          BOOLEAN,
           EQUAL,
           NOTEQUAL,
           GREATEREQUALS,
           LESSEQUAL,
+          AND,
+          OR,
+          MINUS,
           SIGNS,
           ] + list(reserved.values())
 
-###todo write reqular expression for == , !=  , >= , <= , || , &&
 # Regular expression rules for simple tokens
-t_EQUAL = r'(?:^|[^!=])([!=]=)(?!=)'
-t_NOTEQUAL = r'\!='
-t_GREATEREQUALS = r'\b\>\=\b'
-t_LESSEQUAL = r'\<\='
-t_SIGNS = r"[@_!#$%^&*()<>?/|}{~:=]"  # it is ok
+t_SIGNS = r"[@_!+#$%^&*()<>?/|}{~:=,;\[\]]"
 
 
 # A regular expression rule with some action code
+
+def t_AND(t):
+    r'\&&'
+    return t
+
+
+def t_OR(t):
+    r'\|{2}'
+    return t
+
+
+def t_LESSEQUAL(t):
+    r'\<='
+    return t
+
+
+def t_GREATEREQUALS(t):
+    r'-'
+    return t
+
+
+def t_MINUS(t):
+    r'\>='
+    return t
+
+
+def t_NOTEQUAL(t):
+    r'\!='
+    return t
+
+
+def t_EQUAL(t):
+    r'={2}'
+    return t
+
+
 def t_HEXADECIMAL(t):
     r'\b0x[0-9A-z]+\b'
     return t
@@ -80,6 +119,11 @@ def t_FLOATNUMBER(t):
 def t_INTNUMBER(t):
     r'[-+]?\d+'
     t.value = int(t.value)
+    return t
+
+
+def t_BOOLEAN(t):
+    r'\btrue\b|\bfalse\b'
     return t
 
 
@@ -109,8 +153,11 @@ lexer = lex.lex()
 
 # Test it out
 data = '''
-salam Sarah
-version 1!!!
+{-123-a35,id3a,+*;}[||===!=()&&]<><=>==
+    a[24]="7"; n!=if;
+false,-if;true32;
+forpar
+
 '''
 
 # Give the lexer some input
@@ -128,6 +175,8 @@ def judgment_format(token):
         print("T_DOUBLELITERAL", tok.value)
     elif token.type == HEXADECIMAL:
         print("T_INTLITERAL", tok.value)
+    elif token.type == BOOLEAN:
+        print("T_BOOLEANLITERAL", tok.value)
     else:
         print(tok.value)
 

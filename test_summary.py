@@ -7,7 +7,7 @@ test3 : faild (cant recognise special character)
 test4 : pass
 test5 : pass
 test6 : pass (notice: output of 2020. is 2020.0)
-test7 :
+test7 : pass
 test8 :
 test9 :
 test10 :
