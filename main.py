@@ -14,6 +14,7 @@ AND = 'AND'
 OR = 'OR'
 MINUS = 'MINUS'
 BOOLEAN = 'BOOLEAN'
+STRINGLITERAL = 'STRINGLITERAL'
 
 reserved = {
     '__func__': '__func__',
@@ -53,6 +54,7 @@ tokens = [ID,
           HEXADECIMAL,
           FLOATNUMBER,
           INTNUMBER,
+          STRINGLITERAL,
           BOOLEAN,
           EQUAL,
           NOTEQUAL,
@@ -69,73 +71,66 @@ t_SIGNS = r"[@_!+#$%^&*()<>?/|}{~:=,;\[\]]"
 
 
 # A regular expression rule with some action code
-
 def t_AND(t):
     r'\&&'
     return t
-
 
 def t_OR(t):
     r'\|{2}'
     return t
 
-
 def t_LESSEQUAL(t):
     r'\<='
     return t
-
 
 def t_GREATEREQUALS(t):
     r'-'
     return t
 
-
 def t_MINUS(t):
     r'\>='
     return t
-
 
 def t_NOTEQUAL(t):
     r'\!='
     return t
 
-
 def t_EQUAL(t):
     r'={2}'
     return t
 
-
 def t_HEXADECIMAL(t):
     r'\b0x[0-9A-z]+\b'
     return t
-
 
 def t_FLOATNUMBER(t):
     r'[-+]?\d*\.\d*'
     t.value = float(t.value)
     return t
 
-
 def t_INTNUMBER(t):
     r'[-+]?\d+'
     t.value = int(t.value)
     return t
 
-
 def t_BOOLEAN(t):
     r'\btrue\b|\bfalse\b'
     return t
-
 
 def t_newline(t):
     r'\n+'
     t.lexer.lineno += len(t.value)
 
+def t_STRINGLITERAL(t):
+    #TODO
+    r'"([^"\n]|(\\"))*"'
+    return t
 
 def t_ID(t):
     r'[a-zA-Z_][a-zA-Z_0-9]*'
     t.type = reserved.get(t.value, 'ID')  # Check for reserved words
     return t
+
 
 
 # A string containing ignored characters (spaces and tabs)
@@ -152,12 +147,17 @@ def t_error(t):
 lexer = lex.lex()
 
 # Test it out
-data = '''
-{-123-a35,id3a,+*;}[||===!=()&&]<><=>==
-    a[24]="7"; n!=if;
-false,-if;true32;
-forpar
-
+data = r'''
+"A string walks into \n a bar and orders a beer."
+"The bartender looks at him and says, we don't serve strings here."
+"The string walks out to the street, and sits on the curb, dejected."
+"Then he has an idea: he ties himself into a bow, and loosens up his"
+"ends, making them up into nice tassels."
+"His confidence restored, he walks back into the bar, sits down, and orders"
+"another beer."
+"The bartender looks at him suspiciously: he looks a bit like the string"
+"that had just walked in. Hey, he says, \"aren't you a string?\""
+"Nope, says the string.  I'm a frayed knot."
 '''
 
 # Give the lexer some input
@@ -171,6 +171,8 @@ def judgment_format(token):
         print(tok.value)
     elif token.type == INTNUMBER:
         print("T_INTLITERAL", tok.value)
+    elif token.type == STRINGLITERAL:
+        print("T_STRINGLITERAL", tok.value)
     elif token.type == FLOATNUMBER:
         print("T_DOUBLELITERAL", tok.value)
     elif token.type == HEXADECIMAL:
