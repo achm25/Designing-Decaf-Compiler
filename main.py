@@ -71,6 +71,11 @@ t_SIGNS = r"[@_!+#$%^&*()<>?/|}{~:=,;\[\]]"
 
 
 # A regular expression rule with some action code
+
+def t_COMMENT(t):
+    r'\/\/.*'
+    pass
+
 def t_AND(t):
     r'\&&'
     return t
@@ -123,7 +128,7 @@ def t_newline(t):
 
 def t_STRINGLITERAL(t):
     #TODO
-    r'"([^"\n]|(\\"))*"'
+    r"'(\\'|[^'])*(?!<\\)'|\"(\\\"|[^\"])*(?!<\\)\""
     return t
 
 def t_ID(t):
@@ -158,6 +163,7 @@ data = r'''
 "The bartender looks at him suspiciously: he looks a bit like the string"
 "that had just walked in. Hey, he says, \"aren't you a string?\""
 "Nope, says the string.  I'm a frayed knot."
+
 '''
 
 # Give the lexer some input
