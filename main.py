@@ -15,6 +15,9 @@ OR = 'OR'
 MINUS = 'MINUS'
 BOOLEAN = 'BOOLEAN'
 STRINGLITERAL = 'STRINGLITERAL'
+MINUSEQUAL = 'MINUSEQUAL'
+PLUSEQUAL = 'PLUSEQUAL'
+
 
 reserved = {
     '__func__': '__func__',
@@ -59,6 +62,8 @@ tokens = [ID,
           EQUAL,
           NOTEQUAL,
           GREATEREQUALS,
+          MINUSEQUAL,
+          PLUSEQUAL,
           LESSEQUAL,
           AND,
           OR,
@@ -88,6 +93,10 @@ def t_LESSEQUAL(t):
     r'\<='
     return t
 
+def t_MINUSEQUAL(t):
+    r'\-='
+    return t
+
 def t_GREATEREQUALS(t):
     r'-'
     return t
@@ -99,6 +108,11 @@ def t_MINUS(t):
 def t_NOTEQUAL(t):
     r'\!='
     return t
+
+def t_PLUSEQUAL(t):
+    r'\+='
+    return t
+
 
 def t_EQUAL(t):
     r'={2}'
@@ -127,7 +141,6 @@ def t_newline(t):
     t.lexer.lineno += len(t.value)
 
 def t_STRINGLITERAL(t):
-    #TODO
     r"'(\\'|[^'])*(?!<\\)'|\"(\\\"|[^\"])*(?!<\\)\""
     return t
 
@@ -153,8 +166,12 @@ lexer = lex.lex()
 
 # Test it out
 data = r'''
-// this is a single line comment
-this is not a //comment
+import "filename.d"
+
+void printFuncNameAndLine() {
+    Print(__line__);
+    Print(__func__);
+}
 '''
 
 # Give the lexer some input
