@@ -23,13 +23,13 @@ tokens = [ID,
           ] + list(reserved.values())
 
 # Regular expression rules for simple tokens
-t_SIGNS = r"[@_!+#$%^&*()<>?/|}{~:=,;\[\]]"
+t_SIGNS = r"[-@_!+#$%^&*()<>?/|}{~:=,;\[\]]"
 
 
 # A regular expression rule with some action code
 
 def t_COMMENT(t):
-    r'//.*'
+    r'//.*|(\/\*[\s\S]*?\*\/)'
     pass
 
 
@@ -54,7 +54,7 @@ def t_MINUSEQUAL(t):
 
 
 def t_GREATEREQUALS(t):
-    r'-'
+    r'\>='
     return t
 
 
@@ -84,13 +84,13 @@ def t_HEXADECIMAL(t):
 
 
 def t_FLOATNUMBER(t):
-    r'[-+]?\d*\.\d*'
-    t.value = float(t.value)
+    r'\b[+]?\d+\.\d*[Ee][\+\-]?\d+\b|[+]?\d*\.\d*'
+    t.value = t.value
     return t
 
 
 def t_INTNUMBER(t):
-    r'[-+]?\d+'
+    r'[+]?\d+'
     t.value = int(t.value)
     return t
 
