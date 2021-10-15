@@ -198,8 +198,9 @@ def find_define_word(t):
         line = line.strip()
         temp_list = line.split(" ", 2)
         if "define" in temp_list:
-            saved_list.append({"key": temp_list[1], "value": temp_list[2]})
-            line = ""
+            if len(temp_list) >= 2:
+                saved_list.append({"key": temp_list[1], "value": temp_list[2]})
+                line = ""
 
         if line != "":
             final_text = final_text + line + "\n"

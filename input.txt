@@ -1,4 +1,4 @@
-define SEMICOLON ;
+define
 define FOR100 for(i = 0; i < 100; i += 1)
 
 FOR100
