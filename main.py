@@ -1,5 +1,5 @@
 import ply.lex as lex
-
+import re
 # define token name here
 ID = 'ID'
 HEXADECIMAL = 'HEXADECIMAL'
@@ -51,7 +51,6 @@ reserved_words = {
     'this': 'this',
     'void': 'void',
     'while': 'while',
-
 }
 
 reserved = reserved_words
@@ -204,13 +203,14 @@ def find_define_word(t):
 
         if line != "":
             final_text = final_text + line + "\n"
-
     return final_text, saved_list
 
 
 def replace_define_word(t, word_list):
     for item in word_list:
-        t = t.replace(item["key"], item["value"])
+        match_reg = r"\b" + item["key"] + r"\b"
+        t = re.sub(match_reg, item["value"], t)
+
     return t
 
 
@@ -263,32 +263,5 @@ def run(input_file_address: str) -> str:
 
     return result[:-1]
 
-
 actual = run("input.txt")
 print(actual)
-# # Test it out
-# data = r'''
-# define SEMICOLON ;
-# define FOR100 for(i = 0; i < 100; i += 1)
-#
-# FOR100
-# Print(i)SEMICOLON
-# '''
-#
-#
-# # Give the lexer some input
-# lexer.input(handleDefine(data))
-#
-#
-#
-# # Tokenize
-# result = ""
-# while True:
-#     tok = lexer.token()
-#     if not tok:
-#         break  # No more input
-#     # print(tok.type, tok.value, tok.lineno, tok.lexpos)  #more option for print
-#     # judgment_format(tok)
-#     result += judgment_format_write(tok) + "\n"
-#
-# print(result)
