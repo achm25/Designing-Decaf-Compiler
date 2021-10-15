@@ -17,10 +17,8 @@ BOOLEAN = 'BOOLEAN'
 STRINGLITERAL = 'STRINGLITERAL'
 MINUSEQUAL = 'MINUSEQUAL'
 PLUSEQUAL = 'PLUSEQUAL'
-
-
-
-
+DIVIDEEQUAL = 'DIVIDEEQUAL'
+MULTIPLYEQUAL = 'MULTIPLYEQUAL'
 
 reserved_words = {
     '__func__': '__func__',
@@ -56,8 +54,6 @@ reserved_words = {
 
 }
 
-
-
 reserved = reserved_words
 
 # List of token names.This is always required
@@ -69,6 +65,8 @@ tokens = [ID,
           BOOLEAN,
           EQUAL,
           NOTEQUAL,
+          DIVIDEEQUAL,
+          MULTIPLYEQUAL,
           GREATEREQUALS,
           MINUSEQUAL,
           PLUSEQUAL,
@@ -80,11 +78,10 @@ tokens = [ID,
           ] + list(reserved.values())
 
 # Regular expression rules for simple tokens
-t_SIGNS = r"[-@_!+#$%^&*()<>?/|}{~:=,;\[\]]"
+t_SIGNS = r"[-@_!+#$%^&*()<>?/.|}{~:=,;\[\]]"
 
 
 # A regular expression rule with some action code
-
 def t_COMMENT(t):
     r'//.*|(\/\*[\s\S]*?\*\/)'
     pass
@@ -115,6 +112,16 @@ def t_GREATEREQUALS(t):
     return t
 
 
+def t_DIVIDEEQUAL(t):
+    r'\/='
+    return t
+
+
+def t_MULTIPLYEQUAL(t):
+    r'\*='
+    return t
+
+
 def t_MINUS(t):
     r'\>='
     return t
@@ -136,18 +143,18 @@ def t_EQUAL(t):
 
 
 def t_HEXADECIMAL(t):
-    r'\b0x[0-9A-z]+\b'
+    r'0[xX][0-9a-fA-F]+'
     return t
 
 
 def t_FLOATNUMBER(t):
-    r'\b[+]?\d+\.\d*[Ee][\+\-]?\d+\b|[+]?\d*\.\d*'
+    r'\b\d+\.\d*[Ee][\+\-]?\d+\b|\d+\.\d*'
     t.value = t.value
     return t
 
 
 def t_INTNUMBER(t):
-    r'[+]?\d+'
+    r'\d+'
 
     t.value = t.value
 
@@ -170,9 +177,10 @@ def t_STRINGLITERAL(t):
 
 
 def t_ID(t):
-    r'[a-zA-Z][a-zA-Z_0-9]*'
+    r'[a-zA-Z][a-zA-Z_0-9]*|\_{2}func\_{2}|\_{2}line\_{2}'
     t.type = reserved.get(t.value, 'ID')  # Check for reserved words
     return t
+
 
 # A string containing ignored characters (spaces and tabs)
 t_ignore = ' \t'
@@ -182,8 +190,6 @@ t_ignore = ' \t'
 def t_error(t):
     print("Illegal character '%s'" % t.value[0])
     t.lexer.skip(1)
-
-
 
 
 def find_define_word(t):
@@ -212,31 +218,33 @@ def handleDefine(t):
     text, word_list = find_define_word(t)
     return replace_define_word(text, word_list)
 
+
 def judgment_format_write(token):
     if token.type == ID:
         # print("T_ID", token.value)
-        return "T_ID" + " " +str(token.value)
+        return "T_ID" + " " + str(token.value)
     elif token.type in reserved_words.values():
         # print(token.value)
         return str(token.value)
     elif token.type == INTNUMBER:
         # print("T_INTLITERAL", token.value)
-        return "T_INTLITERAL" + " " +str(token.value)
+        return "T_INTLITERAL" + " " + str(token.value)
     elif token.type == STRINGLITERAL:
         # print("T_STRINGLITERAL", token.value)
-        return "T_STRINGLITERAL" + " " +str(token.value)
+        return "T_STRINGLITERAL" + " " + str(token.value)
     elif token.type == FLOATNUMBER:
         # print("T_DOUBLELITERAL", token.value)
-        return "T_DOUBLELITERAL" + " " +str(token.value)
+        return "T_DOUBLELITERAL" + " " + str(token.value)
     elif token.type == HEXADECIMAL:
         # print("T_INTLITERAL", token.value)
-        return "T_INTLITERAL" + " " +str(token.value)
+        return "T_INTLITERAL" + " " + str(token.value)
     elif token.type == BOOLEAN:
         # print("T_BOOLEANLITERAL", token.value)
-        return "T_BOOLEANLITERAL" + " " +str(token.value)
+        return "T_BOOLEANLITERAL" + " " + str(token.value)
     else:
         # print(token.value)
         return str(token.value)
+
 
 def run(input_file_address: str) -> str:
     result = ''

@@ -1,6 +1,19 @@
-import "filename.d"
-
-void printFuncNameAndLine() {
-    Print(__line__);
-    Print(__func__);
-}
+4void
+_int
+3double
+bool
+string
+class
+null
+for
+while
+if
+else
+return
+break
+new
+this
+NewArray
+Print
+ReadInteger
+ReadLine
