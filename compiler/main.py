@@ -170,7 +170,7 @@ def t_STRINGLITERAL(t):
 
 
 def t_ID(t):
-    r'[a-zA-Z][a-zA-Z_0-9]*'
+    r'[a-zA-Z_][a-zA-Z_0-9]*'
     t.type = reserved.get(t.value, 'ID')  # Check for reserved words
     return t
 
@@ -255,32 +255,3 @@ def run(input_file_address: str) -> str:
 
     return result[:-1]
 
-
-actual = run("input.txt")
-print(actual)
-# # Test it out
-# data = r'''
-# define SEMICOLON ;
-# define FOR100 for(i = 0; i < 100; i += 1)
-#
-# FOR100
-# Print(i)SEMICOLON
-# '''
-#
-#
-# # Give the lexer some input
-# lexer.input(handleDefine(data))
-#
-#
-#
-# # Tokenize
-# result = ""
-# while True:
-#     tok = lexer.token()
-#     if not tok:
-#         break  # No more input
-#     # print(tok.type, tok.value, tok.lineno, tok.lexpos)  #more option for print
-#     # judgment_format(tok)
-#     result += judgment_format_write(tok) + "\n"
-#
-# print(result)
