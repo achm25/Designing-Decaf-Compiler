@@ -1,195 +1,5 @@
-import ply.lex as lex
+from lark import Lark, UnexpectedInput
 import re
-# define token name here
-ID = 'ID'
-HEXADECIMAL = 'HEXADECIMAL'
-FLOATNUMBER = 'FLOATNUMBER'
-INTNUMBER = 'INTNUMBER'
-EQUAL = 'EQUAL'
-NOTEQUAL = 'NOTEQUAL'
-GREATEREQUALS = 'GREATEREQUALS'
-LESSEQUAL = 'LESSEQUAL'
-SIGNS = 'SIGNS'
-AND = 'AND'
-OR = 'OR'
-MINUS = 'MINUS'
-BOOLEAN = 'BOOLEAN'
-STRINGLITERAL = 'STRINGLITERAL'
-MINUSEQUAL = 'MINUSEQUAL'
-PLUSEQUAL = 'PLUSEQUAL'
-DIVIDEEQUAL = 'DIVIDEEQUAL'
-MULTIPLYEQUAL = 'MULTIPLYEQUAL'
-
-reserved_words = {
-    '__func__': '__func__',
-    '__line__': '__line__',
-    'bool': 'bool',
-    'break': 'break',
-    'btoi': 'btoi',
-    'class': 'class',
-    'continue': 'continue',
-    'define': 'define',
-    'double': 'double',
-    'dtoi': 'dtoi',
-    'else': 'else',
-    'for': 'for',
-    'if': 'if',
-    'import': 'import',
-    'int': 'int',
-    'itob': 'itob',
-    'itod': 'itod',
-    'new': 'new',
-    'NewArray': 'NewArray',
-    'null': 'null',
-    'Print': 'Print',
-    'private': 'private',
-    'public': 'public',
-    'ReadInteger': 'ReadInteger',
-    'ReadLine': 'ReadLine',
-    'return': 'return',
-    'string': 'string',
-    'this': 'this',
-    'void': 'void',
-    'while': 'while',
-}
-
-reserved = reserved_words
-
-# List of token names.This is always required
-tokens = [ID,
-          HEXADECIMAL,
-          FLOATNUMBER,
-          INTNUMBER,
-          STRINGLITERAL,
-          BOOLEAN,
-          EQUAL,
-          NOTEQUAL,
-          DIVIDEEQUAL,
-          MULTIPLYEQUAL,
-          GREATEREQUALS,
-          MINUSEQUAL,
-          PLUSEQUAL,
-          LESSEQUAL,
-          AND,
-          OR,
-          MINUS,
-          SIGNS,
-          ] + list(reserved.values())
-
-# Regular expression rules for simple tokens
-t_SIGNS = r"[-@_!+#$%^&*()<>?/.|}{~:=,;\[\]]"
-
-
-# A regular expression rule with some action code
-def t_COMMENT(t):
-    r'//.*|(\/\*[\s\S]*?\*\/)'
-    pass
-
-
-def t_AND(t):
-    r'\&&'
-    return t
-
-
-def t_OR(t):
-    r'\|{2}'
-    return t
-
-
-def t_LESSEQUAL(t):
-    r'\<='
-    return t
-
-
-def t_MINUSEQUAL(t):
-    r'\-='
-    return t
-
-
-def t_GREATEREQUALS(t):
-    r'\>='
-    return t
-
-
-def t_DIVIDEEQUAL(t):
-    r'\/='
-    return t
-
-
-def t_MULTIPLYEQUAL(t):
-    r'\*='
-    return t
-
-
-def t_MINUS(t):
-    r'\>='
-    return t
-
-
-def t_NOTEQUAL(t):
-    r'\!='
-    return t
-
-
-def t_PLUSEQUAL(t):
-    r'\+='
-    return t
-
-
-def t_EQUAL(t):
-    r'={2}'
-    return t
-
-
-def t_HEXADECIMAL(t):
-    r'0[xX][0-9a-fA-F]+'
-    return t
-
-
-def t_FLOATNUMBER(t):
-    r'\b\d+\.\d*[Ee][\+\-]?\d+\b|\d+\.\d*'
-    t.value = t.value
-    return t
-
-
-def t_INTNUMBER(t):
-    r'\d+'
-
-    t.value = t.value
-
-    return t
-
-
-def t_BOOLEAN(t):
-    r'\btrue\b|\bfalse\b'
-    return t
-
-
-def t_newline(t):
-    r'\n+'
-    t.lexer.lineno += len(t.value)
-
-
-def t_STRINGLITERAL(t):
-    r"'(\\'|[^'])*(?!<\\)'|\"(\\\"|[^\"])*(?!<\\)\""
-    return t
-
-
-def t_ID(t):
-    r'[a-zA-Z][a-zA-Z_0-9]*|\_{2}func\_{2}|\_{2}line\_{2}'
-    t.type = reserved.get(t.value, 'ID')  # Check for reserved words
-    return t
-
-
-# A string containing ignored characters (spaces and tabs)
-t_ignore = ' \t'
-
-
-# Error handling rule
-def t_error(t):
-    print("Illegal character '%s'" % t.value[0])
-    t.lexer.skip(1)
-
 
 def find_define_word(t):
     final_text = ""
@@ -220,49 +30,184 @@ def handleDefine(t):
     return replace_define_word(text, word_list)
 
 
-def judgment_format_write(token):
-    if token.type == ID:
-        # print("T_ID", token.value)
-        return "T_ID" + " " + str(token.value)
-    elif token.type in reserved_words.values():
-        # print(token.value)
-        return str(token.value)
-    elif token.type == INTNUMBER:
-        # print("T_INTLITERAL", token.value)
-        return "T_INTLITERAL" + " " + str(token.value)
-    elif token.type == STRINGLITERAL:
-        # print("T_STRINGLITERAL", token.value)
-        return "T_STRINGLITERAL" + " " + str(token.value)
-    elif token.type == FLOATNUMBER:
-        # print("T_DOUBLELITERAL", token.value)
-        return "T_DOUBLELITERAL" + " " + str(token.value)
-    elif token.type == HEXADECIMAL:
-        # print("T_INTLITERAL", token.value)
-        return "T_INTLITERAL" + " " + str(token.value)
-    elif token.type == BOOLEAN:
-        # print("T_BOOLEANLITERAL", token.value)
-        return "T_BOOLEANLITERAL" + " " + str(token.value)
-    else:
-        # print(token.value)
-        return str(token.value)
+decaf_parser = Lark(
+    grammar=r"""
+program: macro* (decl)+ -> finalize
+macro : "import" STRING 
+decl: accessmode variable_decl -> pass_up_first_element
+    | accessmode function_decl -> pass_up_first_element
+    | class_decl -> pass_up_first_element
+    | interface_decl -> pass_up_first_element
+
+variable_decl: variable ";" -> new_variable
+variable: type new_identifier -> variable_definition
+        | type new_identifier "=" constant
+type: PRIM -> prim_type
+    | identifier -> named_type
+    | type "[]" | type "[ ]" | type "[  ]"-> array_type
+
+function_decl: type new_identifier "(" formals ")" stmt_block -> new_function
+    | "void" new_identifier "(" formals ")" stmt_block -> new_void_function
+
+formals: variable ("," variable)* -> pass_up
+    | -> pass_up
+class_decl: "class" new_identifier extend_decl implement_decl "{" fields_decl "}" -> new_class
+extend_decl: "extends" identifier -> pass_up_first_element
+    | -> pass_up_first_element
+implement_decl: "implements" identifier ("," identifier)* -> pass_up
+    | -> pass_up
+fields_decl: (field)* -> pass_up
+field:accessmode variable_decl -> pass_up_first_element
+    | accessmode function_decl -> pass_up_first_element
+accessmode: "public" | "private" |  -> access_mode
+interface_decl: "interface" new_identifier "{" (prototype)* "}"
+prototype: type new_identifier "(" formals ")" ";"
+    | "void" new_identifier "(" formals ")" ";"
+stmt_block: "{" (variable_decl)* (stmt)* "}" -> statement_block
+stmt: optional_expression ";" -> optional_expresion_statement
+    | if_stmt -> pass_up_first_element
+    | while_stmt -> pass_up_first_element
+    | for_stmt -> pass_up_first_element
+    | break_stmt -> pass_up_first_element
+    | continue_stmt -> pass_up_first_element
+    | return_stmt -> pass_up_first_element
+    | print_stmt -> pass_up_first_element
+    | stmt_block -> pass_up_first_element
+if_stmt: "if" "(" expr ")" stmt ("else" stmt)? -> if_statement
+while_stmt: "while" "(" expr ")" stmt -> while_statement
+for_stmt: "for" "(" optional_expression ";" expr ";" optional_expression ")" stmt -> for_statement
+return_stmt: "return" optional_expression ";" -> return_statement
+optional_expression: (expr)? -> pass_up_first_element
+break_stmt: "break" ";" -> break_statement
+continue_stmt: "continue" ";" -> break_statement
+print_stmt : "Print" "(" expr ("," expr)* ")" ";" -> print_statement
+
+expr: expr1 "||" expr -> logical_or
+    | assignment -> pass_up_first_element
+    | expr1 -> pass_up_first_element
+
+expr1: expr2 "&&" expr1 -> logical_and
+    | expr2 -> pass_up_first_element
+expr2: expr3 "==" expr2 -> equals_operation
+    | expr3 -> pass_up_first_element
+expr3: expr4 "!=" expr3 -> not_equals_operation
+    | expr4 -> pass_up_first_element
+expr4: expr5 "<" expr4 -> lt_operation
+    | expr5 -> pass_up_first_element
+expr5: expr6 "<=" expr5 -> lte_operation
+    | expr6 -> pass_up_first_element
+expr6: expr7 ">" expr6 -> gt_operation
+    | expr7 -> pass_up_first_element
+expr7: expr8 ">=" expr7 -> gte_operation
+    | expr8 -> pass_up_first_element
+expr8: expr8plus "+" expr8 -> addition_operation
+    | expr8plus -> pass_up_first_element
+expr8plus : expr9 "+=" expr8plus -> add_plus
+   | expr9 
+expr9: expr9 "-" expr9plus -> subtraction_operation
+    | expr9plus -> pass_up_first_element
+expr9plus : expr10 "-=" expr9plus -> minus_plus
+   | expr10 
+expr10: expr10plus "*" expr10 -> multiplication_operation
+    | expr10plus -> pass_up_first_element
+expr10plus : expr11 "*=" expr10plus -> mul_plus
+   | expr11 
+expr11: expr11 "/" expr11plus -> division_operation
+    | expr11plus -> pass_up_first_element
+expr11plus : expr12 "/=" expr11plus -> divide_plus
+   | expr12 
+expr12: expr12 "%" expr12plus -> modulo_operation
+    | expr12plus -> pass_up_first_element
+expr12plus : expr13 "%=" expr12plus -> baghi_plus
+   | expr13 
+expr13: "-" expr13  -> minus_operation
+    | expr14 -> pass_up_first_element
+expr14: "!" expr15 -> not_operation
+    | expr15 -> pass_up_first_element
+expr15:  constant -> pass_up_first_element
+    | "this" -> this_expression
+    | call -> pass_up_first_element
+    | "ReadInteger" "(" ")" -> read_integer
+    | "ReadLine" "(" ")" -> read_line
+    | "dtoi" "("expr")"
+    | "btoi" "("expr")"
+    | "itod" "("expr")"
+    | "itob" "("expr")"
+    | "new" CLASS_IDENT "("")"  -> initiate_class
+    | "new" CLASS_IDENT    
+    | l_value -> pass_up_first_element
+    | "NewArray" "(" expr "," type ")" -> initiate_array
+    | "__func__" ->f
+    | "__line__" ->l
+
+assignment: l_value "=" expr -> assignment
+l_value: l_value_name -> identifier_l_value
+    | expr15 "." identifier -> member_access_l_value
+    | "(" expr ")" -> pass_up_first_element
+    | "(" expr ")" l_value_name -> pass_up_first_element
+l_value_name: l_value_name "[" expr "]" -> array_access_l_value
+            | identifier -> identifier_l_value
+            | "[" expr "]"
+                        
+call: identifier "(" actuals ")" -> function_call
+    | expr15 "." identifier "(" actuals ")" -> method_call
+actuals:  expr ("," expr)* -> pass_up
+    | -> pass_up
+identifier: IDENT -> identifier
+new_identifier: IDENT -> new_identifier
+constant: INTEGER -> int_const
+    | DOUBLE -> double_const
+    | BOOL -> bool_const
+    | NULL -> null_const
+    | STRING -> string_const
+NULL.5: "null"
+PRIM.2: "int"
+    | "double"
+    | "bool"
+    | "string"
+BOOL.2: "true"
+    | "false"
+
+THIS_KW : "this"
+DOUBLE.2: /(\d)+\.(\d)*(([Ee])(\+|\-)?(\d)+)?/
+IDENT: /\b(?!(this|class|return|while|if|continue|string|string|__func__|itod|itob|dtoi|btoi|__line__|bool|break|else|for|private|public|void|int|double|true|false|bool|string)\b)[a-zA-Z][a-zA-Z0-9_]{0,50}/
+CLASS_IDENT :  /\b(?!(int|double|true|false|bool|string)\b)[a-zA-Z][a-zA-Z0-9_]{0,50}/
+//FUN_IDENT : /\b(?!(this|class)\b)[a-zA-Z][a-zA-Z0-9_]{0,50}/
+STRING : /"(?:[^\\"]|\\.)*"/
+HEXADECIMAL: /0[xX][0-9a-fA-F]+/
+DECIMAL: /[0-9]+/
+INTEGER: HEXADECIMAL
+    | DECIMAL
+INLINE_COMMENT : /\/\/.*/
+MULTILINE_COMMENT : /\/\*(\*(?!\/)|[^*])*\*\//
+%ignore INLINE_COMMENT
+%ignore MULTILINE_COMMENT
+%import common.WS
+%import common.CNAME 
+%ignore WS
+""",
+    start="program",
+    parser="lalr",
+)
 
 
-def run(input_file_address: str) -> str:
-    result = ''
-    # Build the lexer
-    lexer = lex.lex()
-    with open(input_file_address) as input_file:
-        data = input_file.read()
 
-    # data = data.replace("(?s)/\\*.*?\\*/","")
-    lexer.input(handleDefine(data))
-    while True:
-        token = lexer.token()
-        if not token:
-            break  # No more input
-        result += judgment_format_write(token) + "\n"
+if __name__ == '__main__':
+    #test()
+    test1 = r"""
 
-    return result[:-1]
+public int main() {
+    int maman;
+    baba();
+}
 
-actual = run("input.txt")
-print(actual)
+
+    """
+
+    try:
+        test1 = handleDefine(test1)
+
+        decaf_parser.parse(test1)
+        print("OK")
+    except:
+        print("Syntax Error")
