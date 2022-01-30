@@ -1,6 +1,8 @@
 from lark import Lark, UnexpectedInput
 import re
 
+from Transformer.visitor_transformer import DecafVisitor
+
 def find_define_word(t):
     final_text = ""
     saved_list = []
@@ -195,19 +197,18 @@ MULTILINE_COMMENT : /\/\*(\*(?!\/)|[^*])*\*\//
 if __name__ == '__main__':
     #test()
     test1 = r"""
-
 public int main() {
-    int maman;
-    baba();
+    int a = 2;
 }
-
-
     """
 
     try:
         test1 = handleDefine(test1)
 
-        decaf_parser.parse(test1)
+        decaf_tree = decaf_parser.parse(test1)
+        code = DecafVisitor().transform(decaf_tree)
+        
+        print(code)
         print("OK")
     except:
         print("Syntax Error")

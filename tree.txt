@@ -1,0 +1,21 @@
+Tree ('finalize', 
+    [Tree('pass_up_first_element', 
+        [ Tree(Token('RULE', 'accessmode'), []), 
+          Tree('new_function', 
+            [Tree('prim_type', 
+                [Token('PRIM', 'int')]), 
+                Tree('new_identifier', 
+                [Token('IDENT', 'main')]), 
+                Tree('pass_up', []), 
+                Tree('statement_block', 
+                [Tree('new_variable', 
+                    [Tree(Token('RULE', 'variable'), 
+                        [Tree('prim_type', [Token('PRIM', 'int')]), 
+                         Tree('new_identifier', [Token('IDENT', 'a')]), 
+                         Tree('int_const', [Token('INTEGER', '2')])
+                        ])
+                    ])
+                ])
+            ])
+        ])
+    ])
