@@ -1,39 +1,4 @@
-from lark import Lark, UnexpectedInput
-import re
-
-from Transformer.visitor_transformer import DecafVisitor
-
-def find_define_word(t):
-    final_text = ""
-    saved_list = []
-    for line in t.splitlines():
-        line = line.strip()
-        temp_list = line.split(" ", 2)
-        if "define" in temp_list:
-            if len(temp_list) >= 2:
-                saved_list.append({"key": temp_list[1], "value": temp_list[2]})
-                line = ""
-
-        if line != "":
-            final_text = final_text + line + "\n"
-    return final_text, saved_list
-
-
-def replace_define_word(t, word_list):
-    for item in word_list:
-        match_reg = r"\b" + item["key"] + r"\b"
-        t = re.sub(match_reg, item["value"], t)
-
-    return t
-
-
-def handleDefine(t):
-    text, word_list = find_define_word(t)
-    return replace_define_word(text, word_list)
-
-
-decaf_parser = Lark(
-    grammar=r"""
+decaf_grammer = r"""
 program: macro* (decl)+ -> finalize
 macro : "import" STRING 
 decl: accessmode variable_decl -> pass_up_first_element
@@ -187,26 +152,4 @@ MULTILINE_COMMENT : /\/\*(\*(?!\/)|[^*])*\*\//
 %import common.WS
 %import common.CNAME 
 %ignore WS
-""",
-    start="program",
-    parser="lalr",
-)
-
-
-
-if __name__ == '__main__':
-    #test()
-    test1 = r"""
-public int main() {
-    int a = 2;
-}
-    """
-
-    try:
-        test1 = handleDefine(test1)
-
-        decaf_parser.parse(test1)
-        print(decaf_parser.parse(test1))
-        print("OK")
-    except:
-        print("Syntax Error")
+"""
