@@ -79,7 +79,7 @@ for_stmt: "for" "(" optional_expression ";" expr ";" optional_expression ")" stm
 return_stmt: "return" optional_expression ";" -> return_statement
 optional_expression: (expr)? -> pass_up_first_element
 break_stmt: "break" ";" -> break_statement
-continue_stmt: "continue" ";" -> break_statement
+continue_stmt: "continue" ";" -> continue_statement
 print_stmt : "Print" "(" expr ("," expr)* ")" ";" -> print_statement
 
 expr: expr1 "||" expr -> logical_or
@@ -208,6 +208,7 @@ public int main() {
         test1 = handleDefine(test1)
 
         decaf_parser.parse(test1)
+        print(decaf_parser.parse(test1))
         print("OK")
     except:
         print("Syntax Error")
