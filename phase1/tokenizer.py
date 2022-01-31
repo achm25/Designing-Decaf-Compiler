@@ -1,5 +1,5 @@
 import ply.lex as lex
-from constants import *
+from phase1.constants import *
 
 reserved = reserved_words
 
