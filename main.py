@@ -1,7 +1,6 @@
 from lark import Lark, UnexpectedInput
 import re
 
-from Transformer.visitor_transformer import DecafVisitor
 
 def find_define_word(t):
     final_text = ""
@@ -36,14 +35,18 @@ decaf_parser = Lark(
     grammar=r"""
 program: macro* (decl)+ -> finalize
 macro : "import" STRING 
-decl: accessmode variable_decl -> pass_up_first_element
+decl: variable_ass -> pass_up_first_element
+    | accessmode variable_decl -> pass_up_first_element
     | accessmode function_decl -> pass_up_first_element
     | class_decl -> pass_up_first_element
     | interface_decl -> pass_up_first_element
-
+    | variable_ass -> pass_up_first_element
 variable_decl: variable ";" -> new_variable
 variable: type new_identifier -> variable_definition
         | type new_identifier "=" constant
+
+variable_ass: old_identifier "=" constant ";" -> var_assignment    
+
 type: PRIM -> prim_type
     | identifier -> named_type
     | type "[]" | type "[ ]" | type "[  ]"-> array_type
@@ -150,13 +153,14 @@ l_value: l_value_name -> identifier_l_value
 l_value_name: l_value_name "[" expr "]" -> array_access_l_value
             | identifier -> identifier_l_value
             | "[" expr "]"
-                        
+
 call: identifier "(" actuals ")" -> function_call
     | expr15 "." identifier "(" actuals ")" -> method_call
 actuals:  expr ("," expr)* -> pass_up
     | -> pass_up
 identifier: IDENT -> identifier
 new_identifier: IDENT -> new_identifier
+old_identifier: IDENT -> old_identifier
 constant: INTEGER -> int_const
     | DOUBLE -> double_const
     | BOOL -> bool_const
@@ -167,6 +171,7 @@ PRIM.2: "int"
     | "double"
     | "bool"
     | "string"
+
 BOOL.2: "true"
     | "false"
 
@@ -192,21 +197,18 @@ MULTILINE_COMMENT : /\/\*(\*(?!\/)|[^*])*\*\//
     parser="lalr",
 )
 
-
-
 if __name__ == '__main__':
-    #test()
+    # test()
     test1 = r"""
-public int main() {
-    int a = 2;
-}
+            int a ;
+            a   =   1;
     """
 
     try:
-        test1 = handleDefine(test1)
+        # test1 = handleDefine(test1)
+        #
+        print(decaf_parser.parse(test1).pretty())
 
-        decaf_parser.parse(test1)
-        print(decaf_parser.parse(test1))
-        print("OK")
+
     except:
         print("Syntax Error")

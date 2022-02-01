@@ -6,41 +6,39 @@
 
 from lark import Transformer
 
+from Transformer.constant import Const
+from Transformer.identifier import Identifier
+from Transformer.primitive_type import PrimType
+
+
 class DecafVisitor(Transformer):
     def new_function__init__(self):
         super().__init__()
-    
+
     def pass_up(self, args):
+        print("pass up")
+        print(args)
         return args
 
     def pass_up_first_element(self, args):
+        print("pass up first element")
+        print(args)
         if len(args) == 0:
             return None
         return args[0]
 
     def new_function(self, tree):
-        return_type, function_identifier, function_parameters, function_body = tree
-        code = [
-            f"check:",
-            "\tsubu $sp, $sp, 8\t# decrement sp to make space to save ra, fp",
-            "\tsw $fp, 8($sp)\t# save fp",
-            "\tsw $ra, 4($sp)\t# save ra",
-            "\taddiu $fp, $sp, 8\t# set up new fp",
-        ]
-        return code
+        pass
 
-
-    #labels:
+    # labels:
     # pass_up_first_element , new_variable,variable_definition,prim_type,named_type,array_type,new_function,new_void_function
-    # pass_up,new_class,access_mode,statement_block,optional_expresion_statement,if_statement,while_statement,for_statement,return_statement
+    # pass_up,new_class,access_mode,statement_block,optional_expression_statement,if_statement,while_statement,for_statement,return_statement
     # pass_up_first_element,break_statement,continue_statement,print_statement,logical_or,logical_and,equals_operation
     # not_equals_operation,lt_operation,lte_operation,gt_operation,gte_operation,addition_operation,add_plus,subtraction_operation,minus_plus,
     # multiplication_operation,mul_plus,division_operation,divide_plus,modulo_operation,baghi_plus,minus_operation,
     # not_operation,this_expression,read_integer,read_line,initiate_class,f,l,assignment,
     # identifier_l_value,member_access_l_value,array_access_l_value,identifier_l_value,
     # function_call,method_call,identifier,new_identifier,int_const,double_const,bool_const,null_const,string_const
-
-
 
     def pass_up_first_element(self, tree):
         pass
@@ -49,13 +47,18 @@ class DecafVisitor(Transformer):
         pass
 
     def new_variable(self, tree):
+        print("new_variable -> TODO")
+        print(tree)
+        tree2 = tree[0]
+        print(tree2)
         pass
 
     def variable_definition(self, tree):
         pass
 
     def prim_type(self, tree):
-        pass
+        print("prim type -> done")
+        return PrimType(tree[0])
 
     def named_type(self, tree):
         pass
@@ -67,7 +70,6 @@ class DecafVisitor(Transformer):
         pass
 
     def new_void_function(self, tree):
-
         pass
 
     def pass_up(self, tree):
@@ -80,9 +82,11 @@ class DecafVisitor(Transformer):
         pass
 
     def statement_block(self, tree):
+        print("statement block")
+        print(tree)
         pass
 
-    def optional_expresion_statement(self, tree):
+    def optional_expression_statement(self, tree):
         pass
 
     def if_statement(self, tree):
@@ -95,7 +99,6 @@ class DecafVisitor(Transformer):
         pass
 
     def return_statement(self, tree):
-
         pass
 
     def pass_up_first_element(self, tree):
@@ -117,7 +120,6 @@ class DecafVisitor(Transformer):
         pass
 
     def equals_operation(self, tree):
-
         pass
 
     def not_equals_operation(self, tree):
@@ -147,7 +149,6 @@ class DecafVisitor(Transformer):
     def minus_plus(self, tree):
         pass
 
-
     def multiplication_operation(self, tree):
         pass
 
@@ -168,7 +169,6 @@ class DecafVisitor(Transformer):
 
     def minus_operation(self, tree):
         pass
-
 
     def not_operation(self, tree):
         pass
@@ -194,7 +194,6 @@ class DecafVisitor(Transformer):
     def assignment(self, tree):
         pass
 
-
     def identifier_l_value(self, tree):
         pass
 
@@ -207,7 +206,6 @@ class DecafVisitor(Transformer):
     def identifier_l_value(self, tree):
         pass
 
-
     def function_call(self, tree):
         pass
 
@@ -218,10 +216,13 @@ class DecafVisitor(Transformer):
         pass
 
     def new_identifier(self, tree):
-        pass
+        print("new identifier -> done")
+        return Identifier(tree[0])
 
     def int_const(self, tree):
-        pass
+        print("int const -> done")
+        print(Const("int", tree[0]))
+        return Const("int", tree[0])
 
     def double_const(self, tree):
         pass
@@ -232,6 +233,5 @@ class DecafVisitor(Transformer):
     def null_const(self, tree):
         pass
 
-    def string_const (self, tree):
-
+    def string_const(self, tree):
         pass
