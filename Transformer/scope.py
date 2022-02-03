@@ -1,36 +1,26 @@
-
-class Symbol:
-    def __init__(self, name, value=None, label=None):
-        self.name = name
-        self.value = value
-        self.label = label
-
-    def set_value(self, value):
-        self.value = value
-
-    def set_label(self, label):
-        self.label = label
-
-
 class Scope:
-    def __init__(self, name=None, parent_scope=None):
+    def __init__(self, name, parent_scope=None):
         self.name = name
         self.parent_scope = parent_scope
-        self.symbols = dict()
+        self.symbols = {}
 
     def add_symbol(self, symbol):
         self.symbols[symbol.name] = symbol
 
-    def lookup(self, name):
-        if name in self.symbols:
-            return self.symbols[name]
-        if self.parent_scope is None:
-            print(f"Error. Variable {name} not found.")
-        else:
-            return self.parent_scope.lookup(name)
 
-    def push_symbol(self, symbol):
-        self.symbols[symbol.identifier.name] = symbol
+    def find_symbol(self,symbol):
+        if symbol in self.symbols:
+            return symbols[symbol]
+        if self.parent_scope is not None:
+            return self.parent_scope.find_symbol(symbol)
+        else:
+            raise Exception("not found!")
+
+
+
+
+
+    #TODO ID
 
     def __str__(self):
-        return self.symbols
+        return self.name
