@@ -1,4 +1,4 @@
-from .scope import Scope
+from phase3.scope import Scope
 
 
 class SymbolTable:
@@ -8,7 +8,7 @@ class SymbolTable:
         self.local_offset = 0
 
     def new_scope(self):
-        new_scope = Scope(parent_scope=self.current_scope)
+        new_scope = Scope(name="1",parent_scope=self.current_scope)
         self.current_scope = new_scope
         return new_scope
 
