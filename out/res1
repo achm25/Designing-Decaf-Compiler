@@ -2,7 +2,7 @@
 .text
 	subu $sp, $sp, 4	# Decrement sp to make space for variable dummyVar.
 	subu $sp, $sp, 4	# Decrement sp to make space for variable sum.
-
+add:
 	subu $sp, $sp, 8	# decrement sp to make space to save ra, fp
 	sw $fp, 8($sp)	# save fp
 	sw $ra, 4($sp)	# save ra

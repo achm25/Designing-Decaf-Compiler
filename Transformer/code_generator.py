@@ -112,7 +112,7 @@ class CodeGenerator:
         return code
 
     @staticmethod
-    def optional_expresion_statement(symbol_table):
+    def optional_expression_statement(symbol_table, node):
         pass
 
     @staticmethod
