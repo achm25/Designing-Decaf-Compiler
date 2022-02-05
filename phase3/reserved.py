@@ -240,6 +240,7 @@ _ReadInteger:
         subu    $sp, $sp, 4     # decrement sp to make space for locals/temps
         li      $v0, 5
         syscall
+        move $t0, $v0
         move    $sp, $fp        # pop callee frame off stack
         lw      $ra, -4($fp)    # restore saved ra
         lw      $fp, 0($fp)     # restore saved fp
@@ -257,14 +258,19 @@ _ReadLine:
         li      $a0, 128        # request 128 bytes
         li      $v0, 9          # syscall "sbrk" for memory allocation
         syscall                 # do the system call
-
+        
         # read in the new line
         li      $a1, 128        # size of the buffer
         move    $a0, $v0        # location of the buffer
         li      $v0, 8
         syscall
 
-        move    $t1, $a0
+        move    $t0, $a0
+        
+        move    $sp, $fp        # pop callee frame off stack
+        lw      $ra, -4($fp)    # restore saved ra
+        lw      $fp, 0($fp)     # restore saved fp
+        jr      $ra
 
 bloop4: lb      $t5, ($t1)
         beqz    $t5, eloop4

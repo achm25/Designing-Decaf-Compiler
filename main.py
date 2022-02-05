@@ -3,6 +3,7 @@ import re
 
 from phase3.visitor_transformer import DecafVisitor
 
+
 def find_define_word(t):
     final_text = ""
     saved_list = []
@@ -34,7 +35,7 @@ def handleDefine(t):
 
 decaf_parser = Lark(
     grammar=r"""
-    
+
 program: (decl)+ -> finalize
 
 decl: variable_decl -> pass_up_first_element
@@ -208,14 +209,13 @@ MULTILINE_COMMENT : /\/\*(\*(?!\/)|[^*])*\*\//
     parser="lalr",
 )
 
-
-
 if __name__ == '__main__':
-    #test()
+    # test()
     test1 = r"""
 int main() {
-    int a;
-    a = ReadInteger();
+    string a;
+    a = ReadLine();
+    Print(a);
 }
 
 
@@ -231,4 +231,4 @@ int main() {
         print("\n".join(code), file=output_file)
     print("OK")
     # except:
-    #     print("Syntax Error")
+    #     print("Syntax Error") #todo shlould be add

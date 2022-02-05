@@ -88,7 +88,7 @@ class CodeGenerator:
         if variable.v_type.name == TYPE_IS_STRING:
             name_generate = symbol_table.current_scope.root_generator()
             name_generate = name_generate + "__" +  variable.identifier.name
-            data += [f"{name_generate}: .asciiz \"NONE\""]
+            data += [f"{name_generate}: .word 0"]
 
 
             #todo should be deleted
@@ -877,21 +877,23 @@ class CodeGenerator:
         pass
 
     @staticmethod
-    def read_integer():
-        print("READING...")
-        return [
-            "jal _ReadInteger",
-            "subu $sp,$sp,4 # Make space for Integer.",
-            "sw $v0,4($sp)  # Copy Integer to stack.",
-        ]
+    def read_integer(symbol_table):
+        code = ["\tjal _ReadInteger"]
+        which_temp = symbol_table.current_scope.int_const_counter % 2
+        code += [f"\tsw	$t0, {tempIntVar}{which_temp}  # add from memory to t0"]
+        print("ccccc")
+        # find_symbol_in_memory = symbol_table.current_scope.find_symbol_path(assign.l_value.identifier.name)  # if return , means we have this symbol
+        # symbol_path = find_symbol_in_memory.root_generator() + "__" + assign.l_value.identifier.name  # return root path
+        # code += [f"\tsw	$t0 , {symbol_path}  # add from memory to t0"]
+
+        return code
 
     @staticmethod
-    def read_line():
-        return [
-            "jal _ReadLine",
-            "subu $sp,$sp,4 # Make space for Integer.",
-            "sw $v0,4($sp)  # Copy Integer to stack.",
-        ]
+    def read_line(symbol_table):
+        code = ["\tjal _ReadLine"]
+        which_temp = symbol_table.current_scope.string_const_counter % 2
+        code += [f"\tsw	$t0, {tempStringVar}{which_temp}  # add from memory to t0"]
+        return code
 
     @staticmethod
     def initiate_class(symbol_table):
@@ -900,16 +902,31 @@ class CodeGenerator:
     @staticmethod
     def assignment(symbol_table, assign):
         code = []
-
+        print('cdddd')
         l_identifier_type = CodeGenerator.get_type(assign.l_value, symbol_table)
         r_identifier_type = CodeGenerator.get_type(assign.expr, symbol_table)
+        print(l_identifier_type)
+        print(r_identifier_type)
+        print(type(assign.expr).__name__)
 
         if r_identifier_type != l_identifier_type and r_identifier_type is not None:
             print("Semantic Error type 1")
             return code
 
         if type(assign.expr).__name__ == "ReadInteger":
-            CodeGenerator.read_integer()
+            code += CodeGenerator.read_integer(symbol_table)
+            if l_identifier_type is not None:
+                find_symbol_in_memory = symbol_table.current_scope.find_symbol_path(assign.l_value.identifier.name) # if return , means we have this symbol
+                symbol_path = find_symbol_in_memory.root_generator() + "__" + assign.l_value.identifier.name  # return root path
+                code += [f"\tsw	$t0 , {symbol_path}  # add from memory to t0"]
+
+
+        if type(assign.expr).__name__ == "ReadLine":
+            code += CodeGenerator.read_line(symbol_table)
+            if l_identifier_type is not None:
+                find_symbol_in_memory = symbol_table.current_scope.find_symbol_path(assign.l_value.identifier.name) # if return , means we have this symbol
+                symbol_path = find_symbol_in_memory.root_generator() + "__" + assign.l_value.identifier.name  # return root path
+                code += [f"\tsw	$t0 , {symbol_path}  # add from memory to t0"]
 
         if type(assign.expr).__name__ == "Expression":
             assign.expr.cgen(symbol_table)
@@ -986,12 +1003,12 @@ class CodeGenerator:
         return code
 
     @staticmethod
-    def double_const(symbol_table, constant):
+    def double_const(symbol_table,constant):
         print("cgen bool const")
         print(value)
 
     @staticmethod
-    def bool_const(symbol_table, constant):
+    def bool_const(symbol_table,constant):
         code = ["cgen bool const"]
         print("cgen bool const")
         print(value)

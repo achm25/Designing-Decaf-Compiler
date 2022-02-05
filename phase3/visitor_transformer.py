@@ -16,7 +16,7 @@ from Transformer.nodes.for_stm import ForStatement
 from Transformer.nodes.function import Function
 from Transformer.nodes.identifier import Identifier, IdentifierLValue
 from Transformer.nodes.if_stm import IfStatement
-from Transformer.nodes.library_functions import ReadInteger
+from Transformer.nodes.library_functions import *
 from Transformer.nodes.minus_expr import MinusExpression
 from Transformer.nodes.named_type import NamedType
 from Transformer.nodes.optional_expr import OptionalExpr
