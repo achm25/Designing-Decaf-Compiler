@@ -1,7 +1,6 @@
 class Scope:
     # we need it to find out what decereation in this scope for which one , help us to add it to .data
     block_counter: int = 0
-
     def __init__(self, name=None, parent_scope=None):
         self.name = name
         self.parent_scope = parent_scope
