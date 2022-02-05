@@ -4,25 +4,51 @@ double_size = 8
 string_size = 1
 bool_size = 1
 
+TYPE_IS_STRING = "string"
+TYPE_IS_INT = "int"
+TYPE_IS_DOUBLE = "double"
 
 class CodeGenerator:
 
     @staticmethod
     def new_variable(symbol_table, variable):
         code = []
-        current_scope = symbol_table.new_scope()
-        current_scope.add_symbol(variable)
+        data = []
+
+        #todo why we need new scope?
+        #current_scope = symbol_table.new_scope()
+        symbol_table.current_scope.add_symbol(variable)
+
+
+
+        if variable.v_type.name == TYPE_IS_INT:
+            name_generate = symbol_table.current_scope.root_generator()
+            name_generate = name_generate + "__" +  variable.identifier.name
+            data += [f"{name_generate}: .word 0"]
+
 
         size = int_size
-        if variable.v_type == "double":
+        if variable.v_type.name == TYPE_IS_DOUBLE:
             size = 8
+            name_generate = symbol_table.current_scope.root_generator()
+            name_generate = name_generate + "__" +  variable.identifier.name
+            data += [f"{name_generate}: .double 0.0"]
 
+        if variable.v_type.name == TYPE_IS_STRING:
+            name_generate = symbol_table.current_scope.root_generator()
+            name_generate = name_generate + "__" +  variable.identifier.name
+            data += [f"{name_generate}: .asciiz \"NONE\""]
+
+
+            #todo should be deleted
         if not (variable.is_global or variable.is_in_class or variable.is_func_param):
             variable.local_offset = symbol_table.local_offset
             symbol_table.local_offset += size
             code += [
                 f"\tsubu $sp, $sp, {size}\t# Decrement sp to make space for variable {variable.identifier.name}."
             ]
+
+        symbol_table.data_storage += data
         return code
 
     @staticmethod
@@ -32,7 +58,7 @@ class CodeGenerator:
 
     @staticmethod
     def variable_definition(symbol_table,variable):
-        code = CodeGenerator.new_variable(symbol_table, variable)
+        code  = CodeGenerator.new_variable(symbol_table, variable)
         return code
 
     @staticmethod
@@ -42,7 +68,7 @@ class CodeGenerator:
             function.label = (
                 f"{function.parent_class.identifier.name}_{function.identifier.name}"
             )
-        curr_scope = symbol_table.new_scope()
+        curr_scope = symbol_table.new_scope(name=function.identifier.name)
         for param in function.params:
             curr_scope.add_symbol(param)
         code = [
@@ -71,7 +97,7 @@ class CodeGenerator:
             function.label = (
                 f"{function.parent_class.identifier.name}_{function.identifier.name}"
             )
-        curr_scope = symbol_table.new_scope()
+        curr_scope = symbol_table.new_scope(name=function.identifier.name)
         for param in function.params:
             curr_scope.push_symbol(param)
         code = [
@@ -95,7 +121,9 @@ class CodeGenerator:
 
     @staticmethod
     def new_class(symbol_table,class_var): #todo add class model
-        curr_scope = symbol_table.new_scope()
+
+        #todo where is name of class
+        curr_scope = symbol_table.new_scope(name="name")
 
         code = []
         for var in class_var.vars : #todo add vars class parameter
@@ -119,7 +147,9 @@ class CodeGenerator:
 
     @staticmethod
     def statement_block(symbol_table, block):
-        curr_scope = symbol_table.new_scope()
+        symbol_table.current_scope.block_counter += 1
+        new_scope_name = symbol_table.current_scope.name+"_"+"block"+str(symbol_table.current_scope.block_counter)
+        curr_scope = symbol_table.new_scope(name=new_scope_name)
         code = []
 
         for stm in block.block_statements:
@@ -149,6 +179,7 @@ class CodeGenerator:
 
     @staticmethod
     def if_statement(symbol_table, if_stm):
+        symbol_table.current_scope.block_counter += 1
         code = []
         if if_stm.else_block is None:
             code += if_stm.condition.cgen(symbol_table)
@@ -161,6 +192,7 @@ class CodeGenerator:
 
     @staticmethod
     def if_statement_with_else(symbol_table,if_stm):
+        symbol_table.current_scope.block_counter += 1
         code = []
         code += if_stm.condition.cgen(symbol_table)
         code.append(f"beqz $t1, ELSE {if_stm.if_id}")
@@ -173,6 +205,7 @@ class CodeGenerator:
 
     @staticmethod
     def while_statement(symbol_table, while_stm):
+        symbol_table.current_scope.block_counter += 1
         code = [f"LOOP_{while_stm.while_id}:"]
         code += while_stm.condition.cgen(symbol_table)
         code.append(f"\tlw $t1, 4($sp)\t#load expression value from stack to t1")
@@ -187,6 +220,7 @@ class CodeGenerator:
 
     @staticmethod
     def for_statement(symbol_table, for_stm):
+        symbol_table.current_scope.block_counter += 1
         code = []
         if for_stm.init is not None:
             code += for_stm.init.cgen(symbol_table)

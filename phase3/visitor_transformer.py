@@ -64,7 +64,12 @@ class DecafVisitor(Transformer):
             print(child)
             code_part = child.cgen(symbol_table)
             code += code_part
-        return code
+
+        final_code = ["\t.data"]
+        final_code += symbol_table.data_storage
+        print(str(final_code))
+        final_code += code
+        return final_code
 
     def new_variable(self, tree):
         return tree[0]
