@@ -68,13 +68,11 @@ class DecafVisitor(Transformer):
         symbol_table = SymbolTable()
         code = ["\t.globl main", "\t.text", "main:"]
         for child in tree:
-            print(child)
             code_part = child.cgen(symbol_table)
             code += code_part
 
         final_code = ["\t.data",reserved_data]
         final_code += symbol_table.data_storage
-        print(str(final_code))
         final_code += code
         final_code.append(reserved_funcs)
         return final_code
@@ -87,6 +85,9 @@ class DecafVisitor(Transformer):
     def variable_definition(tree):
         v_type = tree[0]
         v_ident = tree[1]
+        print("variable_definition")
+        print(tree)
+        v_ident.i_type = v_type.name
         return Variable(v_type, v_ident)
 
     @staticmethod
@@ -118,7 +119,6 @@ class DecafVisitor(Transformer):
     def statement_block(tree):
         statements = []
         for child in tree:
-            print(child)
             statements.append(child)
         return StatementBlock(statements)
 
@@ -237,12 +237,12 @@ class DecafVisitor(Transformer):
 
     @staticmethod
     def assignment(tree):
-        print("assignment")
-        print(tree)
         return Assignment(tree[0], tree[1])
 
     @staticmethod
     def identifier_l_value(tree):
+        print("identifier_l_value")
+        print(tree)
         return IdentifierLValue(tree[0])
 
     @staticmethod
@@ -271,6 +271,9 @@ class DecafVisitor(Transformer):
 
     @staticmethod
     def identifier(tree):
+        print("identifier")
+        print(tree)
+        print()
         return Identifier(tree[0])
 
     @staticmethod

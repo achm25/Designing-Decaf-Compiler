@@ -8,46 +8,35 @@ TYPE_IS_STRING = "string"
 TYPE_IS_INT = "int"
 TYPE_IS_DOUBLE = "double"
 
+
 class CodeGenerator:
 
     @staticmethod
     def new_variable(symbol_table, variable):
         code = []
         data = []
-
-        #todo why we need new scope?
-        #current_scope = symbol_table.new_scope()
         symbol_table.current_scope.add_symbol(variable)
-
-
-
         if variable.v_type.name == TYPE_IS_INT:
             name_generate = symbol_table.current_scope.root_generator()
-            name_generate = name_generate + "__" +  variable.identifier.name
+            name_generate = name_generate + "__" + variable.identifier.name
             data += [f"{name_generate}: .word 0"]
-
-
         size = int_size
         if variable.v_type.name == TYPE_IS_DOUBLE:
             size = 8
             name_generate = symbol_table.current_scope.root_generator()
-            name_generate = name_generate + "__" +  variable.identifier.name
+            name_generate = name_generate + "__" + variable.identifier.name
             data += [f"{name_generate}: .double 0.0"]
-
         if variable.v_type.name == TYPE_IS_STRING:
             name_generate = symbol_table.current_scope.root_generator()
-            name_generate = name_generate + "__" +  variable.identifier.name
+            name_generate = name_generate + "__" + variable.identifier.name
             data += [f"{name_generate}: .asciiz \"NONE\""]
-
-
-            #todo should be deleted
+            # todo should be deleted
         if not (variable.is_global or variable.is_in_class or variable.is_func_param):
             variable.local_offset = symbol_table.local_offset
             symbol_table.local_offset += size
             code += [
                 f"\tsubu $sp, $sp, {size}\t# Decrement sp to make space for variable {variable.identifier.name}."
             ]
-
         symbol_table.data_storage += data
         return code
 
@@ -151,8 +140,8 @@ class CodeGenerator:
         new_scope_name = symbol_table.current_scope.name+"_"+"block"+str(symbol_table.current_scope.block_counter)
         curr_scope = symbol_table.new_scope(name=new_scope_name)
         code = []
-        print("BLOCK")
         for stm in block.block_statements:
+            print(type(stm).__name__)
             if type(stm).__name__ == "Variable":
                 code += CodeGenerator.new_variable(symbol_table, stm)
             elif type(stm).__name__ == "IfStatement":
@@ -174,7 +163,7 @@ class CodeGenerator:
     def optional_expression_statement(symbol_table, op_expr):
         code = []
         if op_expr.expr is not None:
-            print(op_expr.expr)
+            op_expr.expr.cgen(symbol_table)
         return code
 
     @staticmethod
@@ -282,8 +271,6 @@ class CodeGenerator:
     def print_statement(symbol_table, print_node):
         code = []
         for expr in print_node.expr:
-            print("HERE I AM")
-            print(expr)
             code += expr.cgen(symbol_table)
             size = int_size
             if type(expr).__name__ == "Variable" or type(expr).__name__ == "Const":
@@ -782,17 +769,20 @@ class CodeGenerator:
         pass
 
     @staticmethod
-    def f(symbol_table):
-        pass
-
-    @staticmethod
-    def l(self, symbol_table):
-        pass
-
-    @staticmethod
-    def assignment(symbol_table, variable):
+    def assignment(symbol_table, assign):
         code = ["assign"]
-        print("assign cgen")
+        l_identifier_type = symbol_table.current_scope.symbols["a"].v_type.name
+        if type(assign.expr).__name__ == "Expression":
+            r_identifier_type = symbol_table.current_scope.symbols[assign.expr.l_operand.identifier.name].v_type.namee
+            if r_identifier_type != l_identifier_type:
+                print("Semantic Error")
+        if type(assign.expr).__name__ == "IdentifierLValue":
+            r_identifier_type = symbol_table.current_scope.symbols[assign.expr.identifier.name].v_type.name
+            if r_identifier_type != l_identifier_type:
+                print("Semantic Error")
+        if type(assign.expr).__name__ == "Const":
+            if assign.expr.v_type != l_identifier_type:
+                print("Semantic Error")
         return code
 
     @staticmethod
@@ -829,30 +819,22 @@ class CodeGenerator:
 
     @staticmethod
     def int_const(value):
-        print("cgen int const")
-        print(value)
         return value
 
     @staticmethod
     def double_const(value):
-        print("cgen bool const")
-        print(value)
+        return value
 
     @staticmethod
     def bool_const(value):
         code = ["cgen bool const"]
-        print("cgen bool const")
-        print(value)
         return code
 
     @staticmethod
     def null_const(symbol_table):
-        print("cgen null const")
-        print(symbol_table)
+        return ["null const"]
 
     @staticmethod
     def string_const(value):
-        print("cgen string const")
-        print(value)
         code = ["string const"]
         return code
