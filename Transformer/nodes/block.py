@@ -8,5 +8,4 @@ class StatementBlock(Node):
         self.block_statements = block_statements
 
     def cgen(self, symbol_table: SymbolTable):
-        print("block cgen")
         return CodeGenerator.statement_block(symbol_table, self)

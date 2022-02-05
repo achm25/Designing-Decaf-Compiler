@@ -782,17 +782,20 @@ class CodeGenerator:
         pass
 
     @staticmethod
-    def f(symbol_table):
-        pass
-
-    @staticmethod
-    def l(self, symbol_table):
-        pass
-
-    @staticmethod
-    def assignment(symbol_table, variable):
+    def assignment(symbol_table, assign):
         code = ["assign"]
-        print("assign cgen ")
+        l_identifier_type = symbol_table.current_scope.symbols["a"].v_type.name
+        if type(assign.expr).__name__ == "Expression":
+            r_identifier_type = symbol_table.current_scope.symbols[assign.expr.l_operand.identifier.name].v_type.namee
+            if r_identifier_type != l_identifier_type:
+                print("Semantic Error")
+        if type(assign.expr).__name__ == "IdentifierLValue":
+            r_identifier_type = symbol_table.current_scope.symbols[assign.expr.identifier.name].v_type.name
+            if r_identifier_type != l_identifier_type:
+                print("Semantic Error")
+        if type(assign.expr).__name__ == "Const":
+            if assign.expr.v_type != l_identifier_type:
+                print("Semantic Error")
         return code
 
     @staticmethod
