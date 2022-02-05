@@ -18,6 +18,15 @@ class Scope:
         else:
             raise Exception("not found!")
 
+
+    def find_symbol_path(self, symbol):
+        if symbol in self.symbols:
+            return self
+        if self.parent_scope is not None:
+            return self.parent_scope.find_symbol_path(symbol)
+        else:
+            raise Exception("not found!")
+
     def root_generator(self):
 
         if self.parent_scope is None:

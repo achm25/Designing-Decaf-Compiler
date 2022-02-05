@@ -22,3 +22,4 @@ class SymbolTable:
         self.current_scope.add_symbol(symbol)
 
 
+

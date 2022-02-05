@@ -803,7 +803,7 @@ class CodeGenerator:
     @staticmethod
     def assignment(symbol_table, assign):
         # code = ["assign"]
-
+        code = []
         print(type(assign.expr).__name__)
         l_identifier_type = symbol_table.current_scope.symbols["a"].v_type.name
         if type(assign.expr).__name__ == "Expression":
@@ -817,7 +817,14 @@ class CodeGenerator:
         if type(assign.expr).__name__ == "Const":
             print( assign.expr.value)
             if assign.expr.v_type == TYPE_IS_INT:
-                code += int_const(symbol_table,assign.expr)
+                code += CodeGenerator.int_const(symbol_table,assign.expr)
+                which_temp = symbol_table.current_scope.int_const_counter % 2
+                code +=[f"\tlw	$t0, tempIntVar{which_temp}  # add from memory to t0"]
+                find_symbol_in_memory = symbol_table.current_scope.find_symbol_path(assign.l_value.identifier.name) # if return , means we have this symbol
+                symbol_path = find_symbol_in_memory.root_generator() + "__" + assign.l_value.identifier.name  # return root path
+                code += [f"\tsw	{symbol_path}, $t0  # add from memory to t0"]
+                print("GGGGGGGGGGG")
+                print(code)
             # elif assign.expr.v_type == TYPE_IS_DOUBLE:          #todo should be compelete
             #     code += double_const(symbol_table,assign.expr)
             # elif assign.expr.v_type == TYPE_IS_BOOL:
@@ -872,7 +879,7 @@ class CodeGenerator:
         which_temp = symbol_table.current_scope.int_const_counter % 2
         code = [
             f"\tli $t0, {constant.value}\t# load constant value to $t0",
-            f"\tsw $t0, tempIntVar{which_temp}\t# load constant value from $to to {size}($sp)",
+            f"\tsw $t0, tempIntVar{which_temp}\t# load constant value from $to to temp",
         ]
         return code
 

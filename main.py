@@ -216,9 +216,7 @@ int main() {
     int a;
     int b;
     a = 2;
-    a = "asd";
-    a = 2.2;
-   Print(a);
+
 }
 """
 
