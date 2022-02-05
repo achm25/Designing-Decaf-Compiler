@@ -59,7 +59,7 @@ class DecafVisitor(Transformer):
 
     def finalize(self, tree):
         symbol_table = SymbolTable()
-        code = [".globl main", ".text"]
+        code = ["\t.globl main", "\t.text","main:"]
         for child in tree:
             print(child)
             code_part = child.cgen(symbol_table)

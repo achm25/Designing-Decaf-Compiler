@@ -215,7 +215,7 @@ if __name__ == '__main__':
 string dummyVar;
 int sum;
 
-int add(int first, int second) {
+int add1(int first, int second) {
     return first + second;
 }
 
@@ -229,6 +229,7 @@ int add(int first, int second) {
     print(code)
     with open("out.asm", "w") as output_file:
         # write result to output file.
+        print()
         print("\n".join(code), file=output_file)
     print("OK")
     # except:
