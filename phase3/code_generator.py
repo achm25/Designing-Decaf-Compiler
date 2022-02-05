@@ -1,4 +1,3 @@
-# from Transformer.nodes.return_stm import ReturnStatement
 
 int_size = 4
 double_size = 8
@@ -9,16 +8,14 @@ bool_size = 1
 class CodeGenerator:
 
     @staticmethod
-    def pass_up_first_element(symbol_table):
-        pass
-
-    @staticmethod
     def new_variable(symbol_table, variable):
         code = []
         current_scope = symbol_table.new_scope()
-        current_scope.push_symbol(variable)
+        current_scope.add_symbol(variable)
 
-        size = get_var_size(self.variable_type)
+        size = int_size
+        if variable.v_type == "double":
+            size = 8
 
         if not (variable.is_global or variable.is_in_class or variable.is_func_param):
             variable.local_offset = symbol_table.local_offset
@@ -28,40 +25,15 @@ class CodeGenerator:
             ]
         return code
 
-
-
     @staticmethod
-    def variable_definition_with_assign(symbol_table,variable):
-        const_type = variable.expr.evaluate_type(symbol_table) #todo add evaluate_type
-        if variable.var_type != const_type:  #todo add var_type
-            raise Exception("not matching type")
+    def variable_definition_with_assign(symbol_table, variable):
         code = []
-        code = new_variable(symbol_table,variable)
-        code += assignment(symbol_table,variable)
-
         return code
 
     @staticmethod
     def variable_definition(symbol_table,variable):
-        code = new_variable(symbol_table,variable)
-
+        code = CodeGenerator.new_variable(symbol_table, variable)
         return code
-
-    @staticmethod
-    def prim_type(symbol_table):
-
-        #dont need code generatrion
-        pass
-
-    @staticmethod
-    def named_type(symbol_table):
-        # dont need code generatrion
-        pass
-
-    @staticmethod
-    def array_type(symbol_table):
-        # dont need code generatrion
-        pass
 
     @staticmethod
     def new_function(symbol_table, function):
@@ -72,7 +44,7 @@ class CodeGenerator:
             )
         curr_scope = symbol_table.new_scope()
         for param in function.params:
-            curr_scope.push_symbol(param)
+            curr_scope.add_symbol(param)
         code = [
             f"{function.label}:",
             "\tsubu $sp, $sp, 8\t# decrement sp to make space to save ra, fp",
@@ -93,7 +65,7 @@ class CodeGenerator:
         return code
 
     @staticmethod
-    def new_void_function(symbol_table,function):
+    def new_void_function(symbol_table, function):
         symbol_table.local_offset = 0
         if function.parent_class is not None:
             function.label = (
@@ -120,11 +92,6 @@ class CodeGenerator:
         symbol_table.local_offset = 0
         symbol_table.current_scope = curr_scope.parent_scope
         return code
-
-    @staticmethod
-    def pass_up(symbol_table):
-        # dont need code generatrion
-        pass
 
     @staticmethod
     def new_class(symbol_table,class_var): #todo add class model
@@ -141,180 +108,605 @@ class CodeGenerator:
             curr_scope.add_symbol(symbol_table,func)
 
 
-        for func in class_var.void_funcs : #todo add  void_funcs class parameter
-            code +=new_void_function(symbol_table,func)
-
-        for func in class_var.type_funcs : #todo add type_funcs class parameter
-            code +=new_function(symbol_table,func)
+        # for func in class_var.void_funcs : #todo add  void_funcs class parameter
+        #     code +=new_void_function(symbol_table,func)
+        #
+        # for func in class_var.type_funcs : #todo add type_funcs class parameter
+        #     code +=new_function(symbol_table,func)
 
         symbol_table.current_scope = curr_scope.parent_scope
-        pass
-
-    @staticmethod
-    def access_mode(symbol_table):
-        # dont need code generatrion
         pass
 
     @staticmethod
     def statement_block(symbol_table, block):
-
-
         curr_scope = symbol_table.new_scope()
         code = []
 
-        for var in block.vars: #todo add vars to class parameter
-            code += new_variable(symbol_table,var)
-        for stm in self.stmts: #todo add stmts to class parameter
-            if stm.type == "if_statement":#todo add type to class parameter
-                code += if_statement(symbol_table,stm)
-            elif stm.type == "while_statement":
-                code += while_statement(symbol_table,stm)
-            elif stm.type == "for_statement":
-                code += for_statement(symbol_table,stm)
-            elif stm.type == "return_statement":
-                code += return_statement(symbol_table,stm)
-            elif stm.type == "break_statement":
-                code += break_statement(symbol_table,stm)
-            elif stm.type == "continue_statement":
-                code += continue_statement(symbol_table,stm)
-            elif stm.type == "print_statement":
-                code += print_statement(symbol_table,stm)
-
-
-        #todo some work with stack
-
-
+        for stm in block.block_statements:
+            if type(stm).__name__ == "Variable":
+                code += CodeGenerator.new_variable(symbol_table, stm)
+            elif type(stm).__name__ == "IfStatement":
+                code += CodeGenerator.if_statement(symbol_table, stm)
+            elif type(stm).__name__ == "ForStatement":
+                code += CodeGenerator.for_statement(symbol_table, stm)
+            elif type(stm).__name__ == "PrintNode":
+                code += CodeGenerator.print_statement(symbol_table, stm)
+            elif type(stm).__name__ == "WhileStatement":
+                code += CodeGenerator.while_statement(symbol_table, stm)
+            elif type(stm).__name__ == "OptionalExpr":
+                code += CodeGenerator.optional_expression_statement(symbol_table, stm)
+            elif type(stm).__name__ == "ReturnStatement":
+                break
         symbol_table.current_scope = curr_scope.parent_scope
         return code
 
     @staticmethod
-<<<<<<< HEAD:Transformer/code_generator.py
-    def optional_expression_statement(symbol_table, node):
-=======
-    def optional_expresion_statement(symbol_table,expr):
-        l_type = expr.l_operand.evaluate_type(symbol_table) #todo add evaluate_type
-        r_type = expr.r_operand.evaluate_type(symbol_table) #todo add evaluate_type
-        if l_type != r_type:
-            raise Exception("not matching type")
-
-        if expr.type == "assign": #todo add parameter to class
-            pass
-
->>>>>>> 89e1cdd7c22bb670c93744e8adf270804838fedd:phase3/code_generator.py
-        pass
+    def optional_expression_statement(symbol_table, op_expr):
+        code = []
+        if op_expr.expr is not None:
+            print(op_expr.expr)
+        return code
 
     @staticmethod
-    def if_statement(symbol_table,expr):
-
-        pass
-
-
-    @staticmethod
-    def if_statement_with_else(symbol_table,expr):
-        pass
-
-    @staticmethod
-    def while_statement(symbol_table):
-        pass
+    def if_statement(symbol_table, if_stm):
+        code = []
+        if if_stm.else_block is None:
+            code += if_stm.condition.cgen(symbol_table)
+            code.append(f"beqz $t1, IF{if_stm.if_id}")
+            code += if_stm.block.cgen(symbol_table)
+            code.append(f"IF{if_stm.if_id} END:")
+        else:
+            CodeGenerator.if_statement_with_else(symbol_table, if_stm)
+        return code
 
     @staticmethod
-    def for_statement(symbol_table):
-        pass
+    def if_statement_with_else(symbol_table,if_stm):
+        code = []
+        code += if_stm.condition.cgen(symbol_table)
+        code.append(f"beqz $t1, ELSE {if_stm.if_id}")
+        code += if_stm.body.cgen(symbol_table)
+        code.append(f"j ELSE{if_stm.if_id} END")
+        code.append(f"ELSE{if_stm.if_id}:")
+        code += if_stm.else_body.cgen(symbol_table)
+        code.append(f"ELSE{if_stm.if_id} END:")
+        return code
 
     @staticmethod
-    def return_statement(symbol_table):
-        pass
+    def while_statement(symbol_table, while_stm):
+        code = [f"LOOP_{while_stm.while_id}:"]
+        code += while_stm.condition.cgen(symbol_table)
+        code.append(f"\tlw $t1, 4($sp)\t#load expression value from stack to t1")
+        code += [
+            f"\tlw $t1,4($sp)\t#copy top stack to t1",
+            f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
+        ]
+        code.append(f"\tbeqz $t1,END_LOOP_{while_stm.while_id}")
+        code += while_stm.body.cgen(symbol_table)
+        code.append(f"END_LOOP_{while_stm.while_id}:")
+        return code
 
     @staticmethod
-    def pass_up_first_element(symbol_table):
-        pass
+    def for_statement(symbol_table, for_stm):
+        code = []
+        if for_stm.init is not None:
+            code += for_stm.init.cgen(symbol_table)
+            code += [
+                f"\tlw $t0,4($sp)\t#copy top stack to t0",
+                f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
+            ]
+            code.append(f"FOR_{for_stm.for_id}:")
+        code += for_stm.condition.cgen(symbol_table)
+        code += [
+            f"\tlw $t1,4($sp)\t#copy top stack to t1",
+            f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
+        ]
+        code.append(f"\tbeqz $t1,END_LOOP_{for_stm.for_id}")
+        code += for_stm.body.cgen(symbol_table)
+        if for_stm.update is not None:
+            code += for_stm.update.cgen(symbol_table)
+            code += [
+                f"\tlw $t0,4($sp)\t#copy top stack to t0",
+                f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
+            ]
+            code.append(f"\tj LOOP_{for_stm.for_id}\t# back to start of for")
+        code.append(f"END_LOOP_{for_stm.for_id}:")
+        return code
 
     @staticmethod
-    def break_statement(symbol_table):
-        pass
+    def return_statement(symbol_table, return_stm):
+        code = []
+        if return_stm.statement is not None:
+            code += return_stm.expression.cgen(symbol_table)
+            if type(return_stm.statement).__name__ == "Const":
+                if return_stm.statement.v_type == "double":
+                    code += [
+                        f"\tl.d $f0,0($sp)# move top stack to f0",
+                        f"\taddu $sp,$sp,{double_size}\t# move sp higher cause of pop",
+                    ]
+                else:
+                    code += [
+                        f"\tlw $t0,{int_size}($sp)\t#copy top stack to t0",
+                        f"\taddu $sp,$sp,{int_size}\t# move sp higher cause of pop",
+                    ]
+                    code += ["\tmove $v0, $t0\t# Copy return value to $v0"]
+        return code
+
+    @staticmethod
+    def break_statement(symbol_table, break_stm):
+        return [f"j END_LOOP_{break_stm.break_id}"]
 
     @staticmethod
     def continue_statement(symbol_table):
         pass
 
     @staticmethod
-    def print_statement(symbol_table):
-        pass
+    def print_statement(symbol_table, print_node):
+        code = []
+        for expr in print_node.expr:
+            code += expr.cgen(symbol_table)
+            size = int_size
+            if expr.v_type == "int":
+                code.append(f"\tjal _PrintInt")
+            elif expr.v_type == "string":
+                code.append(f"\tjal _PrintString")
+            elif expr.v_type == "bool":
+                code.append(f"\tjal _PrintBool")
+            elif expr.v_type == "double":
+                size = 8
+                code.append(f"\tjal _SimplePrintDouble")
+            code.append(f"\taddu $sp,$sp,{size}\t# clean parameters")
+        code.append(f"\tjal _PrintNewLine")
+        return code
 
     @staticmethod
-    def logical_or(symbol_table):
-        pass
+    def logical_or(symbol_table, expr):
+        code = []
+        code += expr.l_operand.cgen(symbol_table)
+        code += expr.r_operand.cgen(symbol_table)
+        code += [
+            f"\tlw $t0,4($sp)\t#copy top stack to t0",
+            f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
+        ]
+        code += [
+            f"\tlw $t1,4($sp)\t#copy top stack to t0",
+            f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
+        ]
+        code.append("or $t2,$t1,$t0")
+        code += [
+            f"\tsubu $sp,$sp,4\t# move sp down cause of push",
+            f"\tsw $t2,4($sp)\t#copy t2 to stack",
+        ]
+        return code
 
     @staticmethod
-    def logical_and(symbol_table):
-        pass
+    def logical_and(symbol_table, expr):
+        code = []
+        code += expr.l_operand.cgen(symbol_table)
+        code += expr.r_operand.cgen(symbol_table)
+        code += [
+            f"\tlw $t0,4($sp)\t#copy top stack to t0",
+            f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
+        ]
+        code += [
+            f"\tlw $t1,4($sp)\t#copy top stack to t0",
+            f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
+        ]
+        code.append("and $t2,$t1,$t0")
+        code += [
+            f"\tsubu $sp,$sp,4\t# move sp down cause of push",
+            f"\tsw $t2,4($sp)\t#copy t2 to stack",
+        ]
+        return code
 
     @staticmethod
-    def equals_operation(symbol_table):
-        pass
+    def equals_operation(symbol_table, expr):
+        code = []
+        code += expr.l_operand.cgen(symbol_table)
+        code += expr.r_operand.cgen(symbol_table)
+        if expr.l_operand.v_type == "int":
+            code += [
+                f"\tlw $t0,4($sp)\t#copy top stack to t0",
+                f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
+            ]
+            code += [
+                f"\tlw $t1,4($sp)\t#copy top stack to t0",
+                f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
+            ]
+            code.append("seq $t2,$t1,$t0")
+            code += [
+                f"\tsubu $sp,$sp,4\t# move sp down cause of push",
+                f"\tsw $t2,4($sp)\t#copy t2 to stack",
+            ]
+        else:
+            counter = symbol_table.get_label()
+            code += [
+                f"\tl.d $f0,0($sp)# move top stack to f0",
+                f"\taddu $sp,$sp,8\t# move sp higher cause of pop",
+            ]
+            code += [
+                f"\tl.d $f2,0($sp)# move top stack to f2",
+                f"\taddu $sp,$sp,8\t# move sp higher cause of pop",
+            ]
+            code.append("c.eq.d $f2,$f0")
+            code.append(f"bc1f __double_le__{counter}")
+            code.append("li $t0, 1")
+            code.append(f"__double_le__{counter}:")
+            code += [
+                f"\tsubu $sp,$sp,4\t# move sp down cause of push",
+                f"\tsw $t0,4($sp)\t#copy t0 to stack",
+            ]
+        return code
 
     @staticmethod
-    def not_equals_operation(symbol_table):
-        pass
+    def not_equals_operation(symbol_table, expr):
+        code = []
+        code += expr.l_operand.cgen(symbol_table)
+        code += expr.r_operand.cgen(symbol_table)
+        if expr.l_operand.v_type == "int":
+            code += [
+                f"\tlw $t0,4($sp)\t#copy top stack to t0",
+                f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
+            ]
+            code += [
+                f"\tlw $t1,4($sp)\t#copy top stack to t0",
+                f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
+            ]
+            code.append("sne $t2,$t1,$t0")
+            code += [
+                f"\tsubu $sp,$sp,4\t# move sp down cause of push",
+                f"\tsw $t2,4($sp)\t#copy t2 to stack",
+            ]
+        else:
+            counter = symbol_table.get_label()
+            code += [
+                f"\tl.d $f0,0($sp)# move top stack to f0",
+                f"\taddu $sp,$sp,8\t# move sp higher cause of pop",
+            ]
+            code += [
+                f"\tl.d $f2,0($sp)# move top stack to f2",
+                f"\taddu $sp,$sp,8\t# move sp higher cause of pop",
+            ]
+            code.append("c.eq.d $f2,$f0")
+            code.append(f"bc1t __double_le__{counter}")
+            code.append("li $t0, 1")
+            code.append(f"__double_le__{counter}:")
+            code += [
+                f"\tsubu $sp,$sp,4\t# move sp down cause of push",
+                f"\tsw $t0,4($sp)\t#copy t0 to stack",
+            ]
+        return code
 
     @staticmethod
-    def lt_operation(symbol_table):
-        pass
+    def lt_operation(symbol_table, expr):
+        code = []
+        code += expr.l_operand.cgen(symbol_table)
+        code += expr.r_operand.cgen(symbol_table)
+        if expr.l_operand.v_type == "int":
+            code += [
+                f"\tlw $t0,4($sp)\t#copy top stack to t0",
+                f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
+            ]
+            code += [
+                f"\tlw $t1,4($sp)\t#copy top stack to t0",
+                f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
+            ]
+            code.append("slt $t2,$t1,$t0")
+            code += [
+                f"\tsubu $sp,$sp,4\t# move sp down cause of push",
+                f"\tsw $t2,4($sp)\t#copy t2 to stack",
+            ]
+        else:
+            code += [
+                f"\tl.d $f0,0($sp)# move top stack to f0",
+                f"\taddu $sp,$sp,8\t# move sp higher cause of pop",
+            ]
+            code += [
+                f"\tl.d $f2,0($sp)# move top stack to f2",
+                f"\taddu $sp,$sp,8\t# move sp higher cause of pop",
+            ]
+            code.append("c.lt.d $f2,$f0")
+            code.append(f"bc1f __double_le__")
+            #TODO counter
+            code.append("li $t0, 1")
+            code.append(f"__double_le__:")
+            code += [
+                f"\tsubu $sp,$sp,4\t# move sp down cause of push",
+                f"\tsw $t0,4($sp)\t#copy t0 to stack",
+            ]
+        return code
 
     @staticmethod
-    def lte_operation(symbol_table):
-        pass
+    def lte_operation(symbol_table, expr):
+        code = []
+        code += expr.l_operand.cgen(symbol_table)
+        code += expr.r_operand.cgen(symbol_table)
+        if expr.l_operand.v_type == "int":
+            code += [
+                f"\tlw $t0,4($sp)\t#copy top stack to t0",
+                f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
+            ]
+            code += [
+                f"\tlw $t1,4($sp)\t#copy top stack to t0",
+                f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
+            ]
+            code.append("sle $t2,$t1,$t0")
+            code += [
+                f"\tsubu $sp,$sp,4\t# move sp down cause of push",
+                f"\tsw $t2,4($sp)\t#copy t2 to stack",
+            ]
+        else:
+            counter = symbol_table.get_label()
+            code += [
+                f"\tl.d $f0,0($sp)# move top stack to f0",
+                f"\taddu $sp,$sp,8\t# move sp higher cause of pop",
+            ]
+            code += [
+                f"\tl.d $f2,0($sp)# move top stack to f2",
+                f"\taddu $sp,$sp,8\t# move sp higher cause of pop",
+            ]
+            code.append("c.le.d $f2,$f0")
+            code.append(f"bc1f __double_le__{counter}")
+            code.append("li $t0, 1")
+            code.append(f"__double_le__{counter}:")
+            code += [
+                f"\tsubu $sp,$sp,4\t# move sp down cause of push",
+                f"\tsw $t0,4($sp)\t#copy t0 to stack",
+            ]
+        return code
 
     @staticmethod
-    def gt_operation(symbol_table):
-        pass
+    def gt_operation(symbol_table, expr):
+        code = []
+        code += expr.l_operand.cgen(symbol_table)
+        code += expr.r_operand.cgen(symbol_table)
+        if expr.l_operand.v_type == "int":
+            code += [
+                f"\tlw $t0,4($sp)\t#copy top stack to t0",
+                f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
+            ]
+            code += [
+                f"\tlw $t1,4($sp)\t#copy top stack to t0",
+                f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
+            ]
+            code.append("sgt $t2,$t1,$t0")
+            code += [
+                f"\tsubu $sp,$sp,4\t# move sp down cause of push",
+                f"\tsw $t2,4($sp)\t#copy t2 to stack",
+            ]
+        else:
+            counter = symbol_table.get_label()
+            code += [
+                f"\tl.d $f0,0($sp)# move top stack to f0",
+                f"\taddu $sp,$sp,8\t# move sp higher cause of pop",
+            ]
+            code += [
+                f"\tl.d $f2,0($sp)# move top stack to f2",
+                f"\taddu $sp,$sp,8\t# move sp higher cause of pop",
+            ]
+            code.append("c.le.d $f2,$f0")
+            code.append(f"bc1t __double_le__{counter}")
+            code.append("li $t0, 1")
+            code.append(f"__double_le__{counter}:")
+            code += [
+                f"\tsubu $sp,$sp,8",
+                f"\ts.d $f0,0($sp)",
+            ]
+        return code
 
     @staticmethod
-    def gte_operation(symbol_table):
-        pass
+    def gte_operation(symbol_table, expr):
+        code = []
+        code += expr.l_operand.cgen(symbol_table)
+        code += expr.r_operand.cgen(symbol_table)
+        if expr.l_operand.v_type == "int":
+            code += [
+                f"\tlw $t0,4($sp)\t#copy top stack to t0",
+                f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
+            ]
+            code += [
+                f"\tlw $t1,4($sp)\t#copy top stack to t0",
+                f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
+            ]
+            code.append("sge $t2,$t1,$t0")
+            code += [
+                f"\tsubu $sp,$sp,4\t# move sp down cause of push",
+                f"\tsw $t2,4($sp)\t#copy t2 to stack",
+            ]
+        else:
+            counter = 0
+            code += [
+                f"\tl.d $f0,0($sp)# move top stack to f0",
+                f"\taddu $sp,$sp,8\t# move sp higher cause of pop",
+            ]
+            code += [
+                f"\tl.d $f2,0($sp)# move top stack to f2",
+                f"\taddu $sp,$sp,8\t# move sp higher cause of pop",
+            ]
+            code.append("c.lt.d $f2,$f0")
+            code.append(f"bc1t __double_le__{counter}")
+            code.append("li $t0, 1")
+            code.append(f"__double_le__{counter}:")
+        return code
 
     @staticmethod
-    def addition_operation(symbol_table):
-        pass
+    def addition_operation(symbol_table, expr):
+        code = []
+        code += expr.l_operand.cgen(symbol_table)
+        code += expr.r_operand.cgen(symbol_table)
+        if expr.l_operand.v_type == "int":
+            code += [
+                f"\tlw $t0,4($sp)\t#copy top stack to t0",
+                f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
+            ]
+            code += [
+                f"\tlw $t1,4($sp)\t#copy top stack to t0",
+                f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
+            ]
+            code.append("add $t2,$t1,$t0")
+            code += [
+                f"\tsubu $sp,$sp,4\t# move sp down cause of push",
+                f"\tsw $t2,4($sp)\t#copy t2 to stack",
+            ]
+        else:
+            code += [
+                f"\tl.d $f0,0($sp)# move top stack to f0",
+                f"\taddu $sp,$sp,8\t# move sp higher cause of pop",
+            ]
+            code += [
+                f"\tl.d $f2,0($sp)# move top stack to f2",
+                f"\taddu $sp,$sp,8\t# move sp higher cause of pop",
+            ]
+            code.append("add.d $f4, $f2, $f0")
+            code += [
+                f"\tsubu $sp,$sp,8",
+                f"\ts.d $f4,0($sp)",
+            ]
+        return code
 
     @staticmethod
     def add_plus(symbol_table):
         pass
 
     @staticmethod
-    def subtraction_operation(symbol_table):
-        pass
+    def subtraction_operation(symbol_table, expr):
+        code = []
+        code += expr.l_operand.cgen(symbol_table)
+        code += expr.r_operand.cgen(symbol_table)
+        if expr.l_operand.v_type == "int":
+            code += [
+                f"\tlw $t0,4($sp)\t#copy top stack to t0",
+                f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
+            ]
+            code += [
+                f"\tlw $t1,4($sp)\t#copy top stack to t0",
+                f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
+            ]
+            code.append("sub $t2,$t1,$t0")
+            code += [
+                f"\tsubu $sp,$sp,4\t# move sp down cause of push",
+                f"\tsw $t2,4($sp)\t#copy t2 to stack",
+            ]
+        else:
+            code += [
+                f"\tl.d $f0,0($sp)# move top stack to f0",
+                f"\taddu $sp,$sp,8\t# move sp higher cause of pop",
+            ]
+            code += [
+                f"\tl.d $f2,0($sp)# move top stack to f2",
+                f"\taddu $sp,$sp,8\t# move sp higher cause of pop",
+            ]
+            code.append("sub.d $f4, $f2, $f0")
+            code += [
+                f"\tsubu $sp,$sp,8",
+                f"\ts.d $f4,0($sp)",
+            ]
+        return code
 
     @staticmethod
     def minus_plus(symbol_table):
         pass
 
     @staticmethod
-    def multiplication_operation(symbol_table):
-        pass
+    def multiplication_operation(symbol_table, expr):
+        code = []
+        code += expr.l_operand.cgen(symbol_table)
+        code += expr.r_operand.cgen(symbol_table)
+        if expr.l_operand.v_type == "int":
+            code += [
+                f"\tlw $t0,4($sp)\t#copy top stack to t0",
+                f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
+            ]
+            code += [
+                f"\tlw $t1,4($sp)\t#copy top stack to t0",
+                f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
+            ]
+            code.append("mul $t2,$t1,$t0")
+            code += [
+                f"\tsubu $sp,$sp,4\t# move sp down cause of push",
+                f"\tsw $t2,4($sp)\t#copy t2 to stack",
+            ]
+        else:
+            code += [
+                f"\tl.d $f0,0($sp)# move top stack to f0",
+                f"\taddu $sp,$sp,8\t# move sp higher cause of pop",
+            ]
+            code += [
+                f"\tl.d $f2,0($sp)# move top stack to f2",
+                f"\taddu $sp,$sp,8\t# move sp higher cause of pop",
+            ]
+            code.append("mul.d $f4, $f2, $f0")
+            code += [
+                f"\tsubu $sp,$sp,8",
+                f"\ts.d $f4,0($sp)",
+            ]
+        return code
 
     @staticmethod
     def mul_plus(symbol_table):
         pass
 
     @staticmethod
-    def division_operation(symbol_table):
-        pass
+    def division_operation(symbol_table, expr):
+        code = []
+        code += expr.l_operand.cgen(symbol_table)
+        code += expr.r_operand.cgen(symbol_table)
+        if expr.l_operand.v_type == "int":
+            code += [
+                f"\tlw $t0,4($sp)\t#copy top stack to t0",
+                f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
+            ]
+            code += [
+                f"\tlw $t1,4($sp)\t#copy top stack to t0",
+                f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
+            ]
+            code.append("div $t2,$t1,$t0")
+            code += [
+                f"\tsubu $sp,$sp,4\t# move sp down cause of push",
+                f"\tsw $t2,4($sp)\t#copy t2 to stack",
+            ]
+        else:
+            code += [
+                f"\tl.d $f0,0($sp)# move top stack to f0",
+                f"\taddu $sp,$sp,8\t# move sp higher cause of pop",
+            ]
+            code += [
+                f"\tl.d $f2,0($sp)# move top stack to f2",
+                f"\taddu $sp,$sp,8\t# move sp higher cause of pop",
+            ]
+            code.append("div.d $f4, $f2, $f0")
+            code += [
+                f"\tsubu $sp,$sp,8",
+                f"\ts.d $f4,0($sp)",
+            ]
+        return code
 
     @staticmethod
     def divide_plus(symbol_table):
         pass
 
     @staticmethod
-    def modulo_operation(symbol_table):
-        pass
+    def modulo_operation(symbol_table, expr):
+        code = []
+        code += expr.l_operand.cgen(symbol_table)
+        code += expr.r_operand.cgen(symbol_table)
+        code += [
+            f"\tlw $t0,4($sp)\t#copy top stack to t0",
+            f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
+        ]
+        code += [
+            f"\tlw $t1,4($sp)\t#copy top stack to t0",
+            f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
+        ]
+        code.append("div $t2,$t1,$t0")
+        code.append("mfhi $t2")
+        code += [
+            f"\tsubu $sp,$sp,4\t# move sp down cause of push",
+            f"\tsw $t2,4($sp)\t#copy t2 to stack",
+        ]
+        return code
 
     @staticmethod
     def baghi_plus(symbol_table):
-        pass
-
-    @staticmethod
-    def minus_operation(symbol_table):
         pass
 
     @staticmethod
@@ -326,8 +718,7 @@ class CodeGenerator:
         pass
 
     @staticmethod
-    def read_integer(symbol_table,node):
-
+    def read_integer():
         return [
             "jal _ReadInteger",
             "subu $sp,$sp,4 # Make space for Integer.",
@@ -335,7 +726,7 @@ class CodeGenerator:
         ]
 
     @staticmethod
-    def read_line(symbol_table):
+    def read_line():
         return [
             "jal _ReadLine",
             "subu $sp,$sp,4 # Make space for Integer.",
@@ -355,11 +746,8 @@ class CodeGenerator:
         pass
 
     @staticmethod
-    def assignment(symbol_table,variable):
-
-
-
-        pass
+    def assignment(symbol_table, variable):
+        print("assign cgen")
 
     @staticmethod
     def identifier_l_value(symbol_table):
@@ -395,37 +783,25 @@ class CodeGenerator:
 
     @staticmethod
     def int_const(value):
-        code = (
-            f"\t \t li $t0,{value} \t\t# load constant value to $t0",
-            f"\tsw $t0, {int_size}($sp)\t# add to stack",
-        )
-        return code
+        print("cgen int const")
+        print(value)
 
     @staticmethod
     def double_const(value):
-        # todo handle .e and .
-        code = (
-            f"\t \t li $t0,{value} \t\t# load constant value to $t0",
-            f"\tsw $t0, {double_size}($sp)\t# ladd to stack",
-        )
-        return code
+        print("cgen bool const")
+        print(value)
 
     @staticmethod
     def bool_const(value):
-        code = (
-            f"\t \t li $t0,{value} \t\t# load constant value to $t0",
-            f"\tsw $t0, {bool_size}($sp)\t # add to stack",
-        )
-        return code
+        print("cgen bool const")
+        print(value)
 
     @staticmethod
     def null_const(symbol_table):
-        pass
+        print("cgen null const")
+        print(symbol_table)
 
     @staticmethod
     def string_const(value):
-        code = (
-            f"\t \t li $t0,{value} \t\t# load constant value to $t0",
-            f"\tsw $t0, {bool_size}($sp)\t # add to stack",
-        )
-        return code
+        print("cgen string const")
+        print(value)

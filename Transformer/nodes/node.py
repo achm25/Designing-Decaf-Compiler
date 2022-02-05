@@ -1,4 +1,4 @@
-from Transformer.symbol_table import SymbolTable
+from phase3.symbol_table import SymbolTable
 
 
 class Node:

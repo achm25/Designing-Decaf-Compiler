@@ -1,7 +1,6 @@
-from Transformer.code_generator import CodeGenerator
 from Transformer.nodes.node import Node
-from Transformer.symbol_table import SymbolTable
-
+from phase3.code_generator import CodeGenerator
+from phase3.symbol_table import SymbolTable
 
 class Function(Node):
     def __init__(self, return_type, identifier, params, block, parent_class = None):
@@ -13,6 +12,7 @@ class Function(Node):
         self.parent_class = parent_class
 
     def cgen(self, symbol_table: SymbolTable):
+        print("function cgen")
         return CodeGenerator.new_function(symbol_table, self)
 
 
