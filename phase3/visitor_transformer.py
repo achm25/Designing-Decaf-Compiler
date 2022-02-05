@@ -17,6 +17,7 @@ from Transformer.nodes.function import Function
 from Transformer.nodes.identifier import Identifier, IdentifierLValue
 from Transformer.nodes.if_stm import IfStatement
 from Transformer.nodes.library_functions import ReadInteger
+from Transformer.nodes.minus_expr import MinusExpression
 from Transformer.nodes.named_type import NamedType
 from Transformer.nodes.optional_expr import OptionalExpr
 from Transformer.nodes.primitive_type import PrimType
@@ -195,6 +196,10 @@ class DecafVisitor(Transformer):
     @staticmethod
     def subtraction_operation(tree):
         return Expression("sub", tree[0], tree[1])
+
+    @staticmethod
+    def minus_operation(tree):
+        return MinusExpression(tree[0])
 
     @staticmethod
     def minus_equal(tree):
