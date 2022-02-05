@@ -218,8 +218,7 @@ int main() {
     a = 2;
     a = "asd";
     a = 2.2;
-    a = b;
-    a = a + b;
+   Print(a);
 }
 """
 

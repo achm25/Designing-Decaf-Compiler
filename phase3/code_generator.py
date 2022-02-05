@@ -152,7 +152,9 @@ class CodeGenerator:
         curr_scope = symbol_table.new_scope(name=new_scope_name)
         code = []
         print("BLOCK")
+
         for stm in block.block_statements:
+            print(type(stm).__name__)
             if type(stm).__name__ == "Variable":
                 code += CodeGenerator.new_variable(symbol_table, stm)
             elif type(stm).__name__ == "IfStatement":
@@ -167,6 +169,8 @@ class CodeGenerator:
                 code += CodeGenerator.optional_expression_statement(symbol_table, stm)
             elif type(stm).__name__ == "ReturnStatement":
                 break
+
+
         symbol_table.current_scope = curr_scope.parent_scope
         return code
 
@@ -174,7 +178,7 @@ class CodeGenerator:
     def optional_expression_statement(symbol_table, op_expr):
         code = []
         if op_expr.expr is not None:
-            print(op_expr.expr)
+            op_expr.expr.cgen(symbol_table)
         return code
 
     @staticmethod
@@ -784,6 +788,8 @@ class CodeGenerator:
     @staticmethod
     def assignment(symbol_table, assign):
         code = ["assign"]
+
+        print(type(assign.expr).__name__)
         l_identifier_type = symbol_table.current_scope.symbols["a"].v_type.name
         if type(assign.expr).__name__ == "Expression":
             r_identifier_type = symbol_table.current_scope.symbols[assign.expr.l_operand.identifier.name].v_type.namee
@@ -794,6 +800,7 @@ class CodeGenerator:
             if r_identifier_type != l_identifier_type:
                 print("Semantic Error")
         if type(assign.expr).__name__ == "Const":
+            print( assign.expr.value)
             if assign.expr.v_type != l_identifier_type:
                 print("Semantic Error")
         return code

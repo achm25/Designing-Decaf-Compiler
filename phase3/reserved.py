@@ -8,6 +8,14 @@ printStringVal : .asciiz ""
 printIntVal : .word 0
 printDoubleVal : .double 0.0
 printBool : .asciiz "false"
+tempIntVar1 : .word 0
+tempIntVar2 : .word 0
+tempDoubleVar1 : .double 0.0
+tempDoubleVar2 : .double 0.0
+tempBoolVar1 : .asciiz "false"
+tempBoolVar2 : .asciiz "false"
+tempStringVar1 : .asciiz ""
+tempStringVar2 : .asciiz ""
 """
 
 
@@ -15,6 +23,10 @@ printBool : .asciiz "false"
 
 reserved_funcs = """
 _PrintInt:
+        subu    $sp, $sp, 8
+        sw      $fp, 8($sp)
+        sw      $ra, 4($sp)
+        addiu   $fp, $sp, 8
 
         li      $v0, 1
         lw      $a0, printIntVal
@@ -92,6 +104,12 @@ _PrintDouble:
 
 _PrintString:
 
+
+        subu    $sp, $sp, 8
+        sw      $fp, 8($sp)
+        sw      $ra, 4($sp)
+        addiu   $fp, $sp, 8
+        
         li      $v0, 4
         lw      $a0, printStringVal
         syscall
