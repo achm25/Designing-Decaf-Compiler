@@ -156,7 +156,7 @@ class CodeGenerator:
         print("BLOCK")
 
         for stm in block.block_statements:
-            print(type(stm).__name__)
+            print(type(stm).__name__ , "  ccccc")
             if type(stm).__name__ == "Variable":
                 code += CodeGenerator.new_variable(symbol_table, stm)
             elif type(stm).__name__ == "IfStatement":
@@ -173,6 +173,7 @@ class CodeGenerator:
                 break
 
 
+
         symbol_table.current_scope = curr_scope.parent_scope
         return code
 
@@ -180,7 +181,7 @@ class CodeGenerator:
     def optional_expression_statement(symbol_table, op_expr):
         code = []
         if op_expr.expr is not None:
-            op_expr.expr.cgen(symbol_table)
+           code += op_expr.expr.cgen(symbol_table)
         return code
 
     @staticmethod
