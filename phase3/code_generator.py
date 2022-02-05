@@ -792,7 +792,7 @@ class CodeGenerator:
     @staticmethod
     def assignment(symbol_table, variable):
         code = ["assign"]
-        print("assign cgen")
+        print("assign cgen ")
         return code
 
     @staticmethod
