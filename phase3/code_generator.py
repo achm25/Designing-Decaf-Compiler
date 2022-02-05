@@ -151,7 +151,7 @@ class CodeGenerator:
         new_scope_name = symbol_table.current_scope.name+"_"+"block"+str(symbol_table.current_scope.block_counter)
         curr_scope = symbol_table.new_scope(name=new_scope_name)
         code = []
-
+        print("BLOCK")
         for stm in block.block_statements:
             if type(stm).__name__ == "Variable":
                 code += CodeGenerator.new_variable(symbol_table, stm)
@@ -235,7 +235,7 @@ class CodeGenerator:
             f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
         ]
         code.append(f"\tbeqz $t1,END_LOOP_{for_stm.for_id}")
-        code += for_stm.body.cgen(symbol_table)
+        code += for_stm.block.cgen(symbol_table)
         if for_stm.update is not None:
             code += for_stm.update.cgen(symbol_table)
             code += [
@@ -277,17 +277,21 @@ class CodeGenerator:
     def print_statement(symbol_table, print_node):
         code = []
         for expr in print_node.expr:
+            print("HERE I AM")
+            print(expr)
             code += expr.cgen(symbol_table)
             size = int_size
-            if expr.v_type == "int":
-                code.append(f"\tjal _PrintInt")
-            elif expr.v_type == "string":
-                code.append(f"\tjal _PrintString")
-            elif expr.v_type == "bool":
-                code.append(f"\tjal _PrintBool")
-            elif expr.v_type == "double":
-                size = 8
-                code.append(f"\tjal _SimplePrintDouble")
+            if type(expr).__name__ == "Variable" or type(expr).__name__ == "Const":
+                if expr.v_type == "int":
+                    code.append(f"\tjal _PrintInt")
+                elif expr.v_type == "string":
+                    code.append(f"\tjal _PrintString")
+                elif expr.v_type == "bool":
+                    code.append(f"\tjal _PrintBool")
+                elif expr.v_type == "double":
+                    size = 8
+                    code.append(f"\tjal _SimplePrintDouble")
+
             code.append(f"\taddu $sp,$sp,{size}\t# clean parameters")
         code.append(f"\tjal _PrintNewLine")
         return code
@@ -781,7 +785,9 @@ class CodeGenerator:
 
     @staticmethod
     def assignment(symbol_table, variable):
+        code = ["assign"]
         print("assign cgen")
+        return code
 
     @staticmethod
     def identifier_l_value(symbol_table):
@@ -819,6 +825,7 @@ class CodeGenerator:
     def int_const(value):
         print("cgen int const")
         print(value)
+        return value
 
     @staticmethod
     def double_const(value):
@@ -827,8 +834,10 @@ class CodeGenerator:
 
     @staticmethod
     def bool_const(value):
+        code = ["cgen bool const"]
         print("cgen bool const")
         print(value)
+        return code
 
     @staticmethod
     def null_const(symbol_table):
@@ -839,3 +848,5 @@ class CodeGenerator:
     def string_const(value):
         print("cgen string const")
         print(value)
+        code = ["string const"]
+        return code

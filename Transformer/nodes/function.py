@@ -3,7 +3,7 @@ from phase3.code_generator import CodeGenerator
 from phase3.symbol_table import SymbolTable
 
 class Function(Node):
-    def __init__(self, return_type, identifier, params, block, parent_class = None):
+    def __init__(self, identifier, params, block, return_type=None, parent_class=None):
         self.return_type = return_type
         self.identifier = identifier
         self.params = params

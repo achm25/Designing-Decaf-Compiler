@@ -212,11 +212,21 @@ MULTILINE_COMMENT : /\/\*(\*(?!\/)|[^*])*\*\//
 if __name__ == '__main__':
     #test()
     test1 = r"""
-string dummyVar;
-int sum;
+int main() {
+    int a;
+    int b;
+    int i;
 
-int add1(int first, int second) {
-    return first + second;
+    b = 0;
+    for(i = 1; true; i = i + 1) {
+        Print("Please enter the #", i, " number:");
+        a = ReadInteger();
+        if (a < 0)
+            break;
+        b = b + a;
+    }
+
+    Print("Sum of ", i, " items is: ", b);
 }
 
 """
@@ -228,8 +238,6 @@ int add1(int first, int second) {
     code = DecafVisitor().transform(tree)
     print(code)
     with open("out.asm", "w") as output_file:
-        # write result to output file.
-        print()
         print("\n".join(code), file=output_file)
     print("OK")
     # except:

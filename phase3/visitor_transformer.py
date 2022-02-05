@@ -6,6 +6,7 @@
 
 from lark import Transformer
 
+from Transformer.nodes.array_type import ArrayType
 from Transformer.nodes.assignment import Assignment
 from Transformer.nodes.block import StatementBlock
 from Transformer.nodes.break_stm import BreakStatement
@@ -16,13 +17,21 @@ from Transformer.nodes.function import Function
 from Transformer.nodes.identifier import Identifier, IdentifierLValue
 from Transformer.nodes.if_stm import IfStatement
 from Transformer.nodes.library_functions import ReadInteger
+from Transformer.nodes.named_type import NamedType
 from Transformer.nodes.optional_expr import OptionalExpr
 from Transformer.nodes.primitive_type import PrimType
 from Transformer.nodes.print_node import PrintNode
+from Transformer.nodes.read_line import ReadLine
 from Transformer.nodes.return_stm import ReturnStatement
 from Transformer.nodes.variable_decl import Variable
 from Transformer.nodes.whlie_stm import WhileStatement
 from phase3.symbol_table import SymbolTable
+
+
+def pass_up_first_element(tree):
+    if len(tree) == 0:
+        return None
+    return tree[0]
 
 
 class DecafVisitor(Transformer):
@@ -32,20 +41,17 @@ class DecafVisitor(Transformer):
     def new_function__init__(self):
         super().__init__()
 
-    def pass_up(self, args):
+    @staticmethod
+    def pass_up(args):
         return args
 
-    def pass_up_first_element(self, tree):
-        if len(tree) == 0:
-            return None
-        return tree[0]
-
-    def new_function(self, tree):
+    @staticmethod
+    def new_function(tree):
         return_type = tree[0]
         func_identifier = tree[1]
         func_params = tree[2]
         func_block = tree[3]
-        return Function(return_type, func_identifier, func_params, func_block)
+        return Function(func_identifier, func_params, func_block, return_type)
 
     # labels:
     # pass_up_first_element , new_variable,variable_definition,prim_type,named_type,array_type,new_function,new_void_function
@@ -57,9 +63,10 @@ class DecafVisitor(Transformer):
     # identifier_l_value,member_access_l_value,array_access_l_value,identifier_l_value, var_assignment
     # function_call,method_call,identifier,new_identifier,int_const,double_const,bool_const,null_const,string_const
 
-    def finalize(self, tree):
+    @staticmethod
+    def finalize(tree):
         symbol_table = SymbolTable()
-        code = ["\t.globl main", "\t.text","main:"]
+        code = ["\t.globl main", "\t.text", "main:"]
         for child in tree:
             print(child)
             code_part = child.cgen(symbol_table)
@@ -71,39 +78,39 @@ class DecafVisitor(Transformer):
         final_code += code
         return final_code
 
-    def new_variable(self, tree):
+    @staticmethod
+    def new_variable(tree):
         return tree[0]
 
-    def var_assignment(self, tree):
-        print("var_assignment")
-        pass
-
-    def variable_definition(self, tree):
+    @staticmethod
+    def variable_definition(tree):
         v_type = tree[0]
         v_ident = tree[1]
         return Variable(v_type, v_ident)
 
-    def prim_type(self, tree):
+    @staticmethod
+    def prim_type(tree):
         return PrimType(tree[0])
 
-    def named_type(self, tree):
-        print("named_type")
-        pass
+    @staticmethod
+    def named_type(tree):
+        return NamedType(tree[0])
 
-    def array_type(self, tree):
-        print("array_type")
-        pass
+    @staticmethod
+    def array_type(tree):
+        return ArrayType(tree[0])
 
-    def new_void_function(self, tree):
-        print("new_void_function")
-        pass
+    @staticmethod
+    def new_void_function(tree):
+        func_identifier = tree[1]
+        func_params = tree[2]
+        func_block = tree[3]
+        return Function(func_identifier, func_params, func_block)
 
-    def new_class(self, tree):
+    @staticmethod
+    def new_class(tree):
         print("new_class")
-        pass
-
-    def access_mode(self, tree):
-        print("access_mode")
+        # TODO
         pass
 
     @staticmethod
@@ -127,6 +134,8 @@ class DecafVisitor(Transformer):
 
     def for_statement(self, tree):
         self.__number_of_loops += 1
+        print("FOR")
+        print(tree)
         return ForStatement(tree[0], tree[1], tree[2], tree[3], self.__number_of_loops)
 
     @staticmethod
@@ -137,121 +146,104 @@ class DecafVisitor(Transformer):
         curr_loop = self.__number_of_loops
         return BreakStatement(curr_loop)
 
-    def continue_statement(self, tree):
-        print("continue_statement")
-        pass
-
-    def print_statement(self, tree):
+    @staticmethod
+    def print_statement(tree):
         return PrintNode(tree)
 
-    def logical_or(self, tree):
-        print("logical_or")
-        pass
+    @staticmethod
+    def logical_or(tree):
+        return Expression("or", tree[0], tree[1])
 
-    def logical_and(self, tree):
-        print("logical_and")
-        pass
+    @staticmethod
+    def logical_and(tree):
+        return Expression("and", tree[0], tree[1])
 
-    def equals_operation(self, tree):
-        print("equals_operation")
-        pass
+    @staticmethod
+    def equals_operation(tree):
+        return Expression("equals", tree[0], tree[1])
 
-    def not_equals_operation(self, tree):
-        print("not_equals_operation")
-        pass
+    @staticmethod
+    def not_equals_operation(tree):
+        return Expression("not_equals", tree[0], tree[1])
 
-    def lt_operation(self, tree):
+    @staticmethod
+    def lt_operation(tree):
         return Expression("lt", tree[0], tree[1])
 
-    def lte_operation(self, tree):
-        print("lte_operation")
-        pass
+    @staticmethod
+    def lte_operation(tree):
+        return Expression("lte", tree[0], tree[1])
 
-    def gt_operation(self, tree):
-        print("gt_operation")
-        pass
+    @staticmethod
+    def gt_operation(tree):
+        return Expression("gt", tree[0], tree[1])
 
-    def gte_operation(self, tree):
-        print("gte_operation")
-        pass
+    @staticmethod
+    def gte_operation(tree):
+        return Expression("qte", tree[0], tree[1])
 
-    def addition_operation(self, tree):
+    @staticmethod
+    def addition_operation(tree):
         return Expression("add", tree[0], tree[1])
 
-    def add_plus(self, tree):
-        print("add_plus")
-        pass
+    @staticmethod
+    def add_equal(tree):
+        return Expression("add_equal", tree[0], tree[1])
 
-    def subtraction_operation(self, tree):
-        print("subtraction_operation")
-        pass
+    @staticmethod
+    def subtraction_operation(tree):
+        return Expression("sub", tree[0], tree[1])
 
-    def minus_plus(self, tree):
-        print("minus_plus")
-        pass
+    @staticmethod
+    def minus_equal(tree):
+        return Expression("minus_equal", tree[0], tree[1])
 
-    def multiplication_operation(self, tree):
-        print("multiplication_operation")
-        pass
+    @staticmethod
+    def multiplication_operation(tree):
+        return Expression("mult", tree[0], tree[1])
 
-    def mul_plus(self, tree):
-        print("mul_plus")
-        pass
+    @staticmethod
+    def mult_equal(tree):
+        return Expression("mult_equal", tree[0], tree[1])
 
-    def division_operation(self, tree):
-        print("division_operation")
-        pass
+    @staticmethod
+    def division_operation(tree):
+        return Expression("div", tree[0], tree[1])
 
-    def divide_plus(self, tree):
-        print("divide_plus")
-        pass
+    @staticmethod
+    def divide_equal(tree):
+        return Expression("divide_equal", tree[0], tree[1])
 
-    def modulo_operation(self, tree):
-        print("modulo_operation")
-        pass
+    @staticmethod
+    def modulo_operation(tree):
+        return Expression("modulo", tree[0], tree[1])
 
-    def baghi_plus(self, tree):
-        print("baghi_plus")
-        pass
+    @staticmethod
+    def not_operation(tree):
+        return Expression("not", tree[0], tree[1])
 
-    def minus_operation(self, tree):
-        print("minus_operation")
-        pass
-
-    def not_operation(self, tree):
-        print("not_operation")
-        pass
-
-    def this_expression(self, tree):
-        print("this_expression")
-        pass
-
-    def read_integer(self, tree):
+    @staticmethod
+    def read_integer(tree):
         return ReadInteger()
 
-    def read_line(self, tree):
-        print("read_line")
-        pass
+    @staticmethod
+    def read_line(tree):
+        return ReadLine()
 
     def initiate_class(self, tree):
         print("initiate_class")
         pass
 
-    def f(self, tree):
-        print("f")
-        pass
-
-    def l(self, tree):
-        print("l")
-        pass
-
-    def assignment(self, tree):
+    @staticmethod
+    def assignment(tree):
         return Assignment(tree[0], tree[1])
 
-    def identifier_l_value(self, tree):
+    @staticmethod
+    def identifier_l_value(tree):
         return IdentifierLValue(tree[0])
 
-    def optional_expression_statement(self, tree):
+    @staticmethod
+    def optional_expression_statement(tree):
         return OptionalExpr(tree[0])
 
     def member_access_l_value(self, tree):
@@ -270,23 +262,30 @@ class DecafVisitor(Transformer):
         print("method_call")
         pass
 
-    def new_identifier(self, tree):
+    @staticmethod
+    def new_identifier(tree):
         return Identifier(tree[0])
 
-    def identifier(self, tree):
+    @staticmethod
+    def identifier(tree):
         return Identifier(tree[0])
 
-    def int_const(self, tree):
+    @staticmethod
+    def int_const(tree):
         return Const("int", tree[0])
 
-    def double_const(self, tree):
+    @staticmethod
+    def double_const(tree):
         return Const("double", tree[0])
 
-    def bool_const(self, tree):
+    @staticmethod
+    def bool_const(tree):
         return Const("bool", tree[0])
 
-    def null_const(self, tree):
+    @staticmethod
+    def null_const(tree):
         return Const("null", tree[0])
 
-    def string_const(self, tree):
+    @staticmethod
+    def string_const(tree):
         return Const("string", tree[0])
