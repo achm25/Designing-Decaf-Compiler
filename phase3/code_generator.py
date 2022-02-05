@@ -902,9 +902,13 @@ class CodeGenerator:
 
         l_identifier_type = CodeGenerator.get_type(assign.l_value, symbol_table)
         r_identifier_type = CodeGenerator.get_type(assign.expr, symbol_table)
-        if r_identifier_type != l_identifier_type:
+
+        if r_identifier_type != l_identifier_type and r_identifier_type is not None:
             print("Semantic Error type 1")
             return code
+
+        if type(assign.expr).__name__ == "ReadInteger":
+            CodeGenerator.read_integer()
 
         if type(assign.expr).__name__ == "Expression":
             assign.expr.cgen(symbol_table)
