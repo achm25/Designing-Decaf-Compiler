@@ -20,7 +20,18 @@ tempDoubleVar = "tempDoubleVar"
 tempBoolVar = "tempBoolVar"
 tempStringVar = "tempStringVar"
 
+
 class CodeGenerator:
+
+    @staticmethod
+    def get_type(node, symbol_table):
+        if type(node).__name__ == "IdentifierLValue":
+            return symbol_table.current_scope.symbols[node.identifier.name].v_type.name
+        if type(node).__name__ == "Expression":
+            l_operand_type = CodeGenerator.get_type(node.l_operand, symbol_table)
+            return l_operand_type
+        if type(node).__name__ == "Const":
+            return node.name
 
     @staticmethod
     def new_variable(symbol_table, variable):
@@ -191,7 +202,7 @@ class CodeGenerator:
     def optional_expression_statement(symbol_table, op_expr):
         code = []
         if op_expr.expr is not None:
-           code += op_expr.expr.cgen(symbol_table)
+            code += op_expr.expr.cgen(symbol_table)
         return code
 
     @staticmethod
@@ -627,9 +638,12 @@ class CodeGenerator:
     @staticmethod
     def addition_operation(symbol_table, expr):
         code = []
+
         code += expr.l_operand.cgen(symbol_table)
         code += expr.r_operand.cgen(symbol_table)
-        if expr.l_operand.v_type == "int":
+
+        l_operand_type = CodeGenerator.get_type(expr.l_operand, symbol_table)
+        if l_operand_type == "int":
             code += [
                 f"\tlw $t0,4($sp)\t#copy top stack to t0",
                 f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
@@ -840,40 +854,36 @@ class CodeGenerator:
 
     @staticmethod
     def assignment(symbol_table, assign):
-        # code = ["assign"]
         code = []
-        print(type(assign.expr).__name__)
-        l_identifier_type = symbol_table.current_scope.symbols["a"].v_type.name
+
+        l_identifier_type = CodeGenerator.get_type(assign.l_value, symbol_table)
+        r_identifier_type = CodeGenerator.get_type(assign.expr, symbol_table)
+        if r_identifier_type != l_identifier_type:
+            print("Semantic Error type 1")
+            return code
+
         if type(assign.expr).__name__ == "Expression":
-            r_identifier_type = symbol_table.current_scope.symbols[assign.expr.l_operand.identifier.name].v_type.namee
-            if r_identifier_type != l_identifier_type:
-                print("Semantic Error")
+            assign.expr.cgen(symbol_table)
+
         if type(assign.expr).__name__ == "IdentifierLValue":
-            r_identifier_type = symbol_table.current_scope.symbols[assign.expr.identifier.name].v_type.name
-            if r_identifier_type != l_identifier_type:
-                print("Semantic Error")
+            return code
+
         if type(assign.expr).__name__ == "Const":
-            print( assign.expr.value)
-            assign_type = assign.expr.v_type
-            if assign_type == TYPE_IS_INT:
-                code += CodeGenerator.int_const(symbol_table,assign.expr)
+            if r_identifier_type == TYPE_IS_INT:
+                code += CodeGenerator.int_const(symbol_table, assign.expr)
                 which_temp = symbol_table.current_scope.int_const_counter % 2
                 code +=[f"\tlw	$t0, tempIntVar{which_temp}  # add from memory to t0"]
                 find_symbol_in_memory = symbol_table.current_scope.find_symbol_path(assign.l_value.identifier.name) # if return , means we have this symbol
                 symbol_path = find_symbol_in_memory.root_generator() + "__" + assign.l_value.identifier.name  # return root path
                 code += [f"\tsw	$t0 , {symbol_path}  # add from memory to t0"]
-            # elif assign_type == TYPE_IS_DOUBLE:          #todo should be compelete
+            # elif r_identifier_type == TYPE_IS_DOUBLE:          #todo should be compelete
             #     code += double_const(symbol_table,assign.expr)
-            # elif assign_type == TYPE_IS_BOOL:
+            # elif r_identifier_type == TYPE_IS_BOOL:
             #     code += bool_const(symbol_table,assign.expr)
-            # elif assign_type == TYPE_IS_NULL:
+            # elif r_identifier_type == TYPE_IS_NULL:
             #     code += null_const(symbol_table,assign.expr)
-            # elif assign_type == TYPE_IS_STRING:
+            # elif r_identifier_type == TYPE_IS_STRING:
             #     code += string_const(symbol_table,assign.expr)
-
-
-            if assign.expr.v_type != l_identifier_type:
-                print("Semantic Error")
         return code
 
     @staticmethod

@@ -214,9 +214,8 @@ if __name__ == '__main__':
     test1 = r"""
 int main() {
     int a;
-    int b;
-    a = 2;
-    Print(a);
+    double b;
+    a + b;
 }
 """
 

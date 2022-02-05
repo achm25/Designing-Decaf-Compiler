@@ -10,6 +10,8 @@ class Assignment(Node):
 
     def cgen(self, symbol_table: SymbolTable):
         print("ASSIGN")
+        print(self.l_value)
+        print(self.expr)
         code = CodeGenerator.assignment(symbol_table, self)
         print(code)
         return code

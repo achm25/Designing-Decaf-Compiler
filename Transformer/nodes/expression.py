@@ -10,6 +10,14 @@ class Expression(Node):
         self.r_operand = r_operand
 
     def cgen(self, symbol_table: SymbolTable):
+
+        l_operand_type = CodeGenerator.get_type(self.l_operand, symbol_table)
+        r_operand_type = CodeGenerator.get_type(self.r_operand, symbol_table)
+
+        if l_operand_type != r_operand_type:
+            print("Semantic Error type2")
+            return []
+
         if self.operator == 'add':
             return CodeGenerator.addition_operation(symbol_table, self)
         elif self.operator == 'sub':
