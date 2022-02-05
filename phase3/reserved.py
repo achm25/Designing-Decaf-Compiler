@@ -1,10 +1,13 @@
 reserved_data = """
 TRUE:.asciiz "true"
 FALSE:.asciiz "false"
-NEWLINE:.asciiz "\n"
 DOT: .asciiz "."
 CONST10000: .double -10000.0
 errorMsg: .asciiz "Semantic Error"
+printStringVal : .asciiz ""
+printIntVal : .word 0
+printDoubleVal : .double 0.0
+printBool : .asciiz "false"
 """
 
 
@@ -12,13 +15,9 @@ errorMsg: .asciiz "Semantic Error"
 
 reserved_funcs = """
 _PrintInt:
-        subu    $sp, $sp, 8
-        sw      $fp, 8($sp)
-        sw      $ra, 4($sp)
-        addiu   $fp, $sp, 8
 
         li      $v0, 1
-        lw      $a0, 4($fp)
+        lw      $a0, printIntVal
         syscall
 
         move    $sp, $fp
@@ -92,13 +91,9 @@ _PrintDouble:
 
 
 _PrintString:
-        subu    $sp, $sp, 8
-        sw      $fp, 8($sp)
-        sw      $ra, 4($sp)
-        addiu   $fp, $sp, 8
 
         li      $v0, 4
-        lw      $a0, 4($fp)
+        lw      $a0, printStringVal
         syscall
 
         move    $sp, $fp

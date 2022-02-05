@@ -26,7 +26,7 @@ from Transformer.nodes.return_stm import ReturnStatement
 from Transformer.nodes.variable_decl import Variable
 from Transformer.nodes.whlie_stm import WhileStatement
 from phase3.symbol_table import SymbolTable
-
+from phase3.reserved import *
 
 class DecafVisitor(Transformer):
     __number_of_ifs = 0
@@ -72,10 +72,11 @@ class DecafVisitor(Transformer):
             code_part = child.cgen(symbol_table)
             code += code_part
 
-        final_code = ["\t.data"]
+        final_code = ["\t.data",reserved_data]
         final_code += symbol_table.data_storage
         print(str(final_code))
         final_code += code
+        final_code.append(reserved_funcs)
         return final_code
 
     @staticmethod

@@ -273,6 +273,11 @@ class CodeGenerator:
     def continue_statement(symbol_table):
         pass
 
+
+    @staticmethod
+    def handle_var_for_print(symbol_table, print_node):
+        pass
+
     @staticmethod
     def print_statement(symbol_table, print_node):
         code = []
@@ -507,6 +512,7 @@ class CodeGenerator:
                 f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
             ]
             code.append("sgt $t2,$t1,$t0")
+            code.append("sw $t0,printBoolVal") #todo new should check
             code += [
                 f"\tsubu $sp,$sp,4\t# move sp down cause of push",
                 f"\tsw $t2,4($sp)\t#copy t2 to stack",
