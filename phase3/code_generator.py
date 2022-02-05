@@ -49,7 +49,7 @@ class CodeGenerator:
         if variable.v_type.name == TYPE_IS_STRING:
             name_generate = symbol_table.current_scope.root_generator()
             name_generate = name_generate + "__" +  variable.identifier.name
-            data += [f"{name_generate}: .asciiz \"NONE\""]
+            data += [f"{name_generate}: .word 0"]
 
 
             #todo should be deleted
@@ -312,6 +312,8 @@ class CodeGenerator:
                     code += [f"\tsw	$t0 , {printIntVal}  # add from memory to t0"]
                     code.append(f"\tjal _PrintInt")
                 elif const_type == TYPE_IS_STRING:
+                    code += [f"\tlw	$t0 , {tempStringVar}{symbol_table.current_scope.string_const_counter % 2}  # add from memory to t0"]
+                    code += [f"\tsw	$t0 , {printStringVal}  # add from memory to t0"]
                     code.append(f"\tjal _PrintString")
                 elif const_type == TYPE_IS_BOOL:
                     code.append(f"\tjal _PrintBool")
