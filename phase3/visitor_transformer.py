@@ -28,18 +28,18 @@ from Transformer.nodes.whlie_stm import WhileStatement
 from phase3.symbol_table import SymbolTable
 
 
-def pass_up_first_element(tree):
-    if len(tree) == 0:
-        return None
-    return tree[0]
-
-
 class DecafVisitor(Transformer):
     __number_of_ifs = 0
     __number_of_loops = 0
 
     def new_function__init__(self):
         super().__init__()
+
+    @staticmethod
+    def pass_up_first_element(tree):
+        if len(tree) == 0:
+            return None
+        return tree[0]
 
     @staticmethod
     def pass_up(args):
@@ -236,6 +236,8 @@ class DecafVisitor(Transformer):
 
     @staticmethod
     def assignment(tree):
+        print("assignment")
+        print(tree)
         return Assignment(tree[0], tree[1])
 
     @staticmethod
