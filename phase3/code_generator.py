@@ -80,7 +80,6 @@ class CodeGenerator:
 
         size = int_size
         if variable.v_type.name == TYPE_IS_DOUBLE:
-            size = 8
             name_generate = symbol_table.current_scope.root_generator()
             name_generate = name_generate + "__" +  variable.identifier.name
             data += [f"{name_generate}: .double 0.0"]
@@ -114,6 +113,7 @@ class CodeGenerator:
 
     @staticmethod
     def new_function(symbol_table, function):
+        symbol_table.current_scope.add_function(function)
         symbol_table.local_offset = 0
         if function.parent_class is not None:
             function.label = (
@@ -143,6 +143,7 @@ class CodeGenerator:
 
     @staticmethod
     def new_void_function(symbol_table, function):
+        symbol_table.current_scope.add_function(function)
         symbol_table.local_offset = 0
         if function.parent_class is not None:
             function.label = (
@@ -173,27 +174,6 @@ class CodeGenerator:
     @staticmethod
     def new_class(symbol_table,class_var): #todo add class model
 
-        #todo where is name of class
-        curr_scope = symbol_table.new_scope(name="name")
-
-        code = []
-        for var in class_var.vars : #todo add vars class parameter
-            curr_scope.add_symbol(symbol_table,class_var)
-
-        for func in class_var.void_funcs : #todo add class parameter
-            curr_scope.add_symbol(symbol_table,func)
-
-        for func in class_var.type_funcs : #todo add class parameter
-            curr_scope.add_symbol(symbol_table,func)
-
-
-        # for func in class_var.void_funcs : #todo add  void_funcs class parameter
-        #     code +=new_void_function(symbol_table,func)
-        #
-        # for func in class_var.type_funcs : #todo add type_funcs class parameter
-        #     code +=new_function(symbol_table,func)
-
-        symbol_table.current_scope = curr_scope.parent_scope
         pass
 
     @staticmethod
@@ -970,6 +950,7 @@ class CodeGenerator:
 
     @staticmethod
     def array_access_l_value(symbol_table):
+
         pass
 
     @staticmethod
@@ -977,8 +958,11 @@ class CodeGenerator:
         pass
 
     @staticmethod
-    def function_call(symbol_table):
-        pass
+    def function_call(symbol_table,function):
+        print("Cccccccc")
+        print(function.identifier.name)
+        symbol_table.current_scope.find_function(function.identifier.name)
+        return []
 
     @staticmethod
     def method_call(symbol_table):

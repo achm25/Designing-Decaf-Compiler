@@ -212,13 +212,17 @@ MULTILINE_COMMENT : /\/\*(\*(?!\/)|[^*])*\*\//
 if __name__ == '__main__':
     # test()
     test1 = r"""
-int main() {
-    string a;
-    a = ReadLine();
-    Print(a);
-}
-
-
+       int test(){
+       
+       }
+       
+       int main(){
+       
+            test();
+            
+            }
+       
+        
 """
 
     test1 = handleDefine(test1)

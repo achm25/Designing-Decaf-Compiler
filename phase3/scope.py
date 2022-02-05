@@ -9,6 +9,20 @@ class Scope:
         self.name = name
         self.parent_scope = parent_scope
         self.symbols = {}
+        self.functions = {}  #for keep functions name
+
+
+    def add_function(self, fun):
+        self.functions[fun.identifier.name] = fun
+
+    def find_function(self, fun):
+        if fun in self.functions:
+            return self.functions[fun]
+        if self.parent_scope is not None:
+            return self.parent_scope.find_function(fun)
+        else:
+            raise Exception("not found!")
+
 
     def add_symbol(self, symbol):
         self.symbols[symbol.identifier.name] = symbol

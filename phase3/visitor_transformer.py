@@ -26,6 +26,7 @@ from Transformer.nodes.read_line import ReadLine
 from Transformer.nodes.return_stm import ReturnStatement
 from Transformer.nodes.variable_decl import Variable
 from Transformer.nodes.whlie_stm import WhileStatement
+from Transformer.nodes.function_call import FunctionCall
 from phase3.symbol_table import SymbolTable
 from phase3.reserved import *
 
@@ -102,6 +103,8 @@ class DecafVisitor(Transformer):
 
     @staticmethod
     def array_type(tree):
+        print(tree)
+        print("here")
         return ArrayType(tree[0])
 
     @staticmethod
@@ -261,11 +264,12 @@ class DecafVisitor(Transformer):
 
     def array_access_l_value(self, tree):
         print("array_access_l_value")
+        print(tree)
         pass
 
     def function_call(self, tree):
         print("function_call")
-        pass
+        return FunctionCall(tree[0],tree[1])
 
     def method_call(self, tree):
         print("method_call")
