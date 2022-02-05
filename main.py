@@ -213,11 +213,12 @@ if __name__ == '__main__':
     #test()
     test1 = r"""
 int main() {
-    Print("hello");
-    Print("Sussman");
-    Print("Psilosophy");
-    Print("ZZZZZZzzzzzzzzzz");
+    Print(5);
+    Print(6);
+    Print(3);
+    Print(1);
 }
+
 
 """
 
