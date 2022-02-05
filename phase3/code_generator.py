@@ -6,7 +6,9 @@ bool_size = 1
 
 TYPE_IS_STRING = "string"
 TYPE_IS_INT = "int"
+TYPE_IS_NULL = "null"
 TYPE_IS_DOUBLE = "double"
+TYPE_IS_BOOL = "bool"
 
 class CodeGenerator:
 
@@ -432,6 +434,7 @@ class CodeGenerator:
         code = []
         code += expr.l_operand.cgen(symbol_table)
         code += expr.r_operand.cgen(symbol_table)
+        #todo work with int_const_counter and % to temp1 and temp2
         if expr.l_operand.v_type == "int":
             code += [
                 f"\tlw $t0,4($sp)\t#copy top stack to t0",
@@ -799,7 +802,7 @@ class CodeGenerator:
 
     @staticmethod
     def assignment(symbol_table, assign):
-        code = ["assign"]
+        # code = ["assign"]
 
         print(type(assign.expr).__name__)
         l_identifier_type = symbol_table.current_scope.symbols["a"].v_type.name
@@ -813,6 +816,18 @@ class CodeGenerator:
                 print("Semantic Error")
         if type(assign.expr).__name__ == "Const":
             print( assign.expr.value)
+            if assign.expr.v_type == TYPE_IS_INT:
+                code += int_const(symbol_table,assign.expr)
+            # elif assign.expr.v_type == TYPE_IS_DOUBLE:          #todo should be compelete
+            #     code += double_const(symbol_table,assign.expr)
+            # elif assign.expr.v_type == TYPE_IS_BOOL:
+            #     code += bool_const(symbol_table,assign.expr)
+            # elif assign.expr.v_type == TYPE_IS_NULL:
+            #     code += null_const(symbol_table,assign.expr)
+            # elif assign.expr.v_type == TYPE_IS_STRING:
+            #     code += string_const(symbol_table,assign.expr)
+
+
             if assign.expr.v_type != l_identifier_type:
                 print("Semantic Error")
         return code
@@ -850,18 +865,24 @@ class CodeGenerator:
         pass
 
     @staticmethod
-    def int_const(value):
+    def int_const(symbol_table,constant):
+        symbol_table.current_scope.int_const_counter += 1
+
         print("cgen int const")
-        print(value)
-        return value
+        which_temp = symbol_table.current_scope.int_const_counter % 2
+        code = [
+            f"\tli $t0, {constant.value}\t# load constant value to $t0",
+            f"\tsw $t0, tempIntVar{which_temp}\t# load constant value from $to to {size}($sp)",
+        ]
+        return code
 
     @staticmethod
-    def double_const(value):
+    def double_const(symbol_table,value):
         print("cgen bool const")
         print(value)
 
     @staticmethod
-    def bool_const(value):
+    def bool_const(symbol_table,value):
         code = ["cgen bool const"]
         print("cgen bool const")
         print(value)
@@ -873,7 +894,7 @@ class CodeGenerator:
         print(symbol_table)
 
     @staticmethod
-    def string_const(value):
+    def string_const(symbol_table,value):
         print("cgen string const")
         print(value)
         code = ["string const"]

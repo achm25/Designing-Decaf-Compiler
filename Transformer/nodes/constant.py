@@ -14,12 +14,12 @@ class Const(Node):
 
     def cgen(self, symbol_table: SymbolTable):
         if self.v_type == 'int':
-            return CodeGenerator.int_const(self.value)
+            return CodeGenerator.int_const(symbol_table,self.value)
         elif self.v_type == 'bool':
-            return CodeGenerator.bool_const(self.value)
+            return CodeGenerator.bool_const(symbol_table,self.value)
         elif self.v_type == 'string':
-            return CodeGenerator.string_const(self.value)
+            return CodeGenerator.string_const(symbol_table,self.value)
         elif self.v_type == 'double':
-            return CodeGenerator.double_const(self.value)
+            return CodeGenerator.double_const(symbol_table,self.value)
         elif self.v_type == 'null':
             return CodeGenerator.null_const(symbol_table)

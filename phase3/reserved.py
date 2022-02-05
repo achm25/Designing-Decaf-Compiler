@@ -8,14 +8,15 @@ printStringVal : .asciiz ""
 printIntVal : .word 0
 printDoubleVal : .double 0.0
 printBoolVal : .word 0
+
+tempIntVar0 : .word 0
 tempIntVar1 : .word 0
-tempIntVar2 : .word 0
+tempDoubleVar0 : .double 0.0
 tempDoubleVar1 : .double 0.0
-tempDoubleVar2 : .double 0.0
+tempBoolVar0 : .word 0
 tempBoolVar1 : .word 0
-tempBoolVar2 : .word 0
+tempStringVar0 : .asciiz ""
 tempStringVar1 : .asciiz ""
-tempStringVar2 : .asciiz ""
 """
 
 
