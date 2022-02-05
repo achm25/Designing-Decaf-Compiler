@@ -1,1 +1,5 @@
         la      $a0, TRUE       # address of str to print
+
+	    li $t0, 5	# load constant value to $t0
+	    sw $t0,temp	#copy t0 to stack
+	    lw $t0,4($sp)	#copy top stack to t0
