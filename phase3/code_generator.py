@@ -202,7 +202,7 @@ class CodeGenerator:
     def optional_expression_statement(symbol_table, op_expr):
         code = []
         if op_expr.expr is not None:
-            code += op_expr.expr.cgen(symbol_table)
+           code += op_expr.expr.cgen(symbol_table)
         return code
 
     @staticmethod
@@ -323,6 +323,8 @@ class CodeGenerator:
                     code += [f"\tsw	$t0 , {printIntVal}  # add from memory to t0"]
                     code.append(f"\tjal _PrintInt")
                 elif const_type == TYPE_IS_STRING:
+                    code += [f"\tlw	$t0 , {tempStringVar}{symbol_table.current_scope.string_const_counter % 2}  # add from memory to t0"]
+                    code += [f"\tsw	$t0 , {printStringVal}  # add from memory to t0"]
                     code.append(f"\tjal _PrintString")
                 elif const_type == TYPE_IS_BOOL:
                     code.append(f"\tjal _PrintBool")
@@ -352,8 +354,8 @@ class CodeGenerator:
                 #     code.append(f"\tjal _SimplePrintDouble")
 
 
-            code.append(f"\taddu $sp,$sp,{size}\t# clean parameters")
-        # code.append(f"\tjal _PrintNewLine")
+            # code.append(f"\taddu $sp,$sp,{size}\t# clean parameters")
+            code.append(f"\tjal _PrintNewLine")
         return code
 
     @staticmethod
@@ -638,7 +640,6 @@ class CodeGenerator:
     @staticmethod
     def addition_operation(symbol_table, expr):
         code = []
-
         code += expr.l_operand.cgen(symbol_table)
         code += expr.r_operand.cgen(symbol_table)
 
@@ -872,10 +873,18 @@ class CodeGenerator:
             if r_identifier_type == TYPE_IS_INT:
                 code += CodeGenerator.int_const(symbol_table, assign.expr)
                 which_temp = symbol_table.current_scope.int_const_counter % 2
-                code +=[f"\tlw	$t0, tempIntVar{which_temp}  # add from memory to t0"]
+                code +=[f"\tlw	$t0, {tempIntVar}{which_temp}  # add from memory to t0"]
                 find_symbol_in_memory = symbol_table.current_scope.find_symbol_path(assign.l_value.identifier.name) # if return , means we have this symbol
                 symbol_path = find_symbol_in_memory.root_generator() + "__" + assign.l_value.identifier.name  # return root path
                 code += [f"\tsw	$t0 , {symbol_path}  # add from memory to t0"]
+            elif assign_type == TYPE_IS_STRING:
+                code += CodeGenerator.string_const(symbol_table,assign.expr)
+                which_temp = symbol_table.current_scope.string_const_counter % 2
+                code +=[f"\tlw	$t0, {tempStringVar}{which_temp}  # add from memory to t0"]
+                find_symbol_in_memory = symbol_table.current_scope.find_symbol_path(assign.l_value.identifier.name) # if return , means we have this symbol
+                symbol_path = find_symbol_in_memory.root_generator() + "__" + assign.l_value.identifier.name  # return root path
+                code += [f"\tsw	$t0 , {symbol_path}  # add from memory to t0"]
+
             # elif r_identifier_type == TYPE_IS_DOUBLE:          #todo should be compelete
             #     code += double_const(symbol_table,assign.expr)
             # elif r_identifier_type == TYPE_IS_BOOL:
@@ -921,22 +930,20 @@ class CodeGenerator:
     @staticmethod
     def int_const(symbol_table,constant):
         symbol_table.current_scope.int_const_counter += 1
-
-        print("cgen int const")
         which_temp = symbol_table.current_scope.int_const_counter % 2
         code = [
             f"\tli $t0, {constant.value}\t# load constant value to $t0",
-            f"\tsw $t0, tempIntVar{which_temp}\t# load constant value from $to to temp",
+            f"\tsw $t0, {tempIntVar}{which_temp}\t# load constant value from $to to temp",
         ]
         return code
 
     @staticmethod
-    def double_const(symbol_table,value):
+    def double_const(symbol_table,constant):
         print("cgen bool const")
         print(value)
 
     @staticmethod
-    def bool_const(symbol_table,value):
+    def bool_const(symbol_table,constant):
         code = ["cgen bool const"]
         print("cgen bool const")
         print(value)
@@ -948,8 +955,16 @@ class CodeGenerator:
         print(symbol_table)
 
     @staticmethod
-    def string_const(symbol_table,value):
+    def string_const(symbol_table,constant):
+        symbol_table.current_scope.string_const_counter += 1
+        string_const_address_in_data = f"str_const_number{symbol_table.current_scope.string_const_counter}"
+        data = [f"{string_const_address_in_data}: .asciiz {constant.value}"]
+        symbol_table.data_storage += data
         print("cgen string const")
-        print(value)
-        code = ["string const"]
+        which_temp = symbol_table.current_scope.string_const_counter % 2
+        #find const value to stack
+        code = [
+            f"\tla $t0, {string_const_address_in_data}\t# load constant value to $t0",
+            f"\tsw $t0, {tempStringVar}{which_temp}\t# load constant value from $to to temp",
+        ]
         return code
