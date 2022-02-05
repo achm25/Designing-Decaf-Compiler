@@ -88,6 +88,7 @@ class DecafVisitor(Transformer):
         print("variable_definition")
         print(tree)
         v_ident.i_type = v_type.name
+        print("cccccccc" , v_type.name)
         return Variable(v_type, v_ident)
 
     @staticmethod

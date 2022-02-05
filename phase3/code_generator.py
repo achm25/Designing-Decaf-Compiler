@@ -302,38 +302,41 @@ class CodeGenerator:
             print("HERE I AM")
             print(expr)
             print(type(expr).__name__)
-
             code += expr.cgen(symbol_table)
             size = int_size
             #todo shlould handle call function and class in print
             if type(expr).__name__ == "Variable" or type(expr).__name__ == "Const":
-                print("xxxxxxxxxxx")
-                if expr.v_type == "int":
+                const_type = expr.v_type
+                if const_type == TYPE_IS_INT:
                     code += [f"\tlw	$t0 , {tempIntVar}{symbol_table.current_scope.int_const_counter % 2}  # add from memory to t0"]
                     code += [f"\tsw	$t0 , {printIntVal}  # add from memory to t0"]
                     code.append(f"\tjal _PrintInt")
-                elif expr.v_type == "string":
+                elif const_type == TYPE_IS_STRING:
                     code.append(f"\tjal _PrintString")
-                elif expr.v_type == "bool":
+                elif const_type == TYPE_IS_BOOL:
                     code.append(f"\tjal _PrintBool")
-                elif expr.v_type == "double":
+                elif const_type == TYPE_IS_DOUBLE:
                     size = 8
                     code.append(f"\tjal _SimplePrintDouble")
             if type(expr).__name__ == "IdentifierLValue" :
-                print("xxxxxxxxxxx")
-                print(expr.identifier.i_type)  #todo shloud be handle
-                if True or expr.identifier.i_type == "int":
+                find_symbol_in_scope = symbol_table.current_scope.find_symbol(expr.identifier.name)
+                symbol_type = find_symbol_in_scope.v_type.name
+                print(symbol_type)
+                if  symbol_type == TYPE_IS_INT:
                     find_symbol_in_memory = symbol_table.current_scope.find_symbol_path(expr.identifier.name)  # if return , means we have this symbol
                     symbol_path = find_symbol_in_memory.root_generator() + "__" + expr.identifier.name  # return root path
                     code += [f"\tlw	$t0 , {symbol_path}  # add from memory to t0"]
                     code += [f"\tsw	$t0 , {printIntVal}  # add from memory to t0"]
                     code.append(f"\tjal _PrintInt")
-
-                # elif expr.v_type == "string":         #todo should handle
-                #     code.append(f"\tjal _PrintString")
-                # elif expr.v_type == "bool":
+                elif symbol_type == TYPE_IS_STRING:
+                    find_symbol_in_memory = symbol_table.current_scope.find_symbol_path(expr.identifier.name)  # if return , means we have this symbol
+                    symbol_path = find_symbol_in_memory.root_generator() + "__" + expr.identifier.name  # return root path
+                    code += [f"\tlw	$t0 , {symbol_path}  # add from memory to t0"]
+                    code += [f"\tsw	$t0 , {printStringVal}  # add from memory to t0"]
+                    code.append(f"\tjal _PrintString")
+                # elif symbol_type == TYPE_IS_BOOL:  #todo should handle
                 #     code.append(f"\tjal _PrintBool")
-                # elif expr.v_type == "double":
+                # elif symbol_type == TYPE_IS_DOUBLE:
                 #     size = 8
                 #     code.append(f"\tjal _SimplePrintDouble")
 
@@ -851,20 +854,21 @@ class CodeGenerator:
                 print("Semantic Error")
         if type(assign.expr).__name__ == "Const":
             print( assign.expr.value)
-            if assign.expr.v_type == TYPE_IS_INT:
+            assign_type = assign.expr.v_type
+            if assign_type == TYPE_IS_INT:
                 code += CodeGenerator.int_const(symbol_table,assign.expr)
                 which_temp = symbol_table.current_scope.int_const_counter % 2
                 code +=[f"\tlw	$t0, tempIntVar{which_temp}  # add from memory to t0"]
                 find_symbol_in_memory = symbol_table.current_scope.find_symbol_path(assign.l_value.identifier.name) # if return , means we have this symbol
                 symbol_path = find_symbol_in_memory.root_generator() + "__" + assign.l_value.identifier.name  # return root path
                 code += [f"\tsw	$t0 , {symbol_path}  # add from memory to t0"]
-            # elif assign.expr.v_type == TYPE_IS_DOUBLE:          #todo should be compelete
+            # elif assign_type == TYPE_IS_DOUBLE:          #todo should be compelete
             #     code += double_const(symbol_table,assign.expr)
-            # elif assign.expr.v_type == TYPE_IS_BOOL:
+            # elif assign_type == TYPE_IS_BOOL:
             #     code += bool_const(symbol_table,assign.expr)
-            # elif assign.expr.v_type == TYPE_IS_NULL:
+            # elif assign_type == TYPE_IS_NULL:
             #     code += null_const(symbol_table,assign.expr)
-            # elif assign.expr.v_type == TYPE_IS_STRING:
+            # elif assign_type == TYPE_IS_STRING:
             #     code += string_const(symbol_table,assign.expr)
 
 
