@@ -15,6 +15,10 @@ printIntVal  =  "printIntVal"
 printDoubleVal = "printDoubleVal"
 printBoolVal  = "printBoolVal"
 
+tempIntVar = "tempIntVar"
+tempDoubleVar = "tempDoubleVar"
+tempBoolVar = "tempBoolVar"
+tempStringVar = "tempStringVar"
 
 class CodeGenerator:
 
@@ -305,6 +309,8 @@ class CodeGenerator:
             if type(expr).__name__ == "Variable" or type(expr).__name__ == "Const":
                 print("xxxxxxxxxxx")
                 if expr.v_type == "int":
+                    code += [f"\tlw	$t0 , {tempIntVar}{symbol_table.current_scope.int_const_counter % 2}  # add from memory to t0"]
+                    code += [f"\tsw	$t0 , {printIntVal}  # add from memory to t0"]
                     code.append(f"\tjal _PrintInt")
                 elif expr.v_type == "string":
                     code.append(f"\tjal _PrintString")
