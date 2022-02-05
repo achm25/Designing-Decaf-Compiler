@@ -34,6 +34,7 @@ def handleDefine(t):
 
 decaf_parser = Lark(
     grammar=r"""
+    
 program: (decl)+ -> finalize
 
 decl: variable_decl -> pass_up_first_element

@@ -878,6 +878,7 @@ class CodeGenerator:
 
     @staticmethod
     def read_integer():
+        print("READING...")
         return [
             "jal _ReadInteger",
             "subu $sp,$sp,4 # Make space for Integer.",
@@ -985,12 +986,12 @@ class CodeGenerator:
         return code
 
     @staticmethod
-    def double_const(symbol_table,constant):
+    def double_const(symbol_table, constant):
         print("cgen bool const")
         print(value)
 
     @staticmethod
-    def bool_const(symbol_table,constant):
+    def bool_const(symbol_table, constant):
         code = ["cgen bool const"]
         print("cgen bool const")
         print(value)
