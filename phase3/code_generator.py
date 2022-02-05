@@ -10,6 +10,12 @@ TYPE_IS_NULL = "null"
 TYPE_IS_DOUBLE = "double"
 TYPE_IS_BOOL = "bool"
 
+printStringVal = "printStringVal"
+printIntVal  =  "printIntVal"
+printDoubleVal = "printDoubleVal"
+printBoolVal  = "printBoolVal"
+
+
 class CodeGenerator:
 
     @staticmethod
@@ -156,7 +162,7 @@ class CodeGenerator:
         print("BLOCK")
 
         for stm in block.block_statements:
-            print(type(stm).__name__ , "  ccccc")
+            print(type(stm).__name__ )
             if type(stm).__name__ == "Variable":
                 code += CodeGenerator.new_variable(symbol_table, stm)
             elif type(stm).__name__ == "IfStatement":
@@ -291,9 +297,13 @@ class CodeGenerator:
         for expr in print_node.expr:
             print("HERE I AM")
             print(expr)
+            print(type(expr).__name__)
+
             code += expr.cgen(symbol_table)
             size = int_size
+            #todo shlould handle call function and class in print
             if type(expr).__name__ == "Variable" or type(expr).__name__ == "Const":
+                print("xxxxxxxxxxx")
                 if expr.v_type == "int":
                     code.append(f"\tjal _PrintInt")
                 elif expr.v_type == "string":
@@ -303,9 +313,27 @@ class CodeGenerator:
                 elif expr.v_type == "double":
                     size = 8
                     code.append(f"\tjal _SimplePrintDouble")
+            if type(expr).__name__ == "IdentifierLValue" :
+                print("xxxxxxxxxxx")
+                print(expr.identifier.i_type)  #todo shloud be handle
+                if True or expr.identifier.i_type == "int":
+                    find_symbol_in_memory = symbol_table.current_scope.find_symbol_path(expr.identifier.name)  # if return , means we have this symbol
+                    symbol_path = find_symbol_in_memory.root_generator() + "__" + expr.identifier.name  # return root path
+                    code += [f"\tlw	$t0 , {symbol_path}  # add from memory to t0"]
+                    code += [f"\tsw	$t0 , {printIntVal}  # add from memory to t0"]
+                    code.append(f"\tjal _PrintInt")
+
+                # elif expr.v_type == "string":         #todo should handle
+                #     code.append(f"\tjal _PrintString")
+                # elif expr.v_type == "bool":
+                #     code.append(f"\tjal _PrintBool")
+                # elif expr.v_type == "double":
+                #     size = 8
+                #     code.append(f"\tjal _SimplePrintDouble")
+
 
             code.append(f"\taddu $sp,$sp,{size}\t# clean parameters")
-        code.append(f"\tjal _PrintNewLine")
+        # code.append(f"\tjal _PrintNewLine")
         return code
 
     @staticmethod
@@ -823,9 +851,7 @@ class CodeGenerator:
                 code +=[f"\tlw	$t0, tempIntVar{which_temp}  # add from memory to t0"]
                 find_symbol_in_memory = symbol_table.current_scope.find_symbol_path(assign.l_value.identifier.name) # if return , means we have this symbol
                 symbol_path = find_symbol_in_memory.root_generator() + "__" + assign.l_value.identifier.name  # return root path
-                code += [f"\tsw	{symbol_path}, $t0  # add from memory to t0"]
-                print("GGGGGGGGGGG")
-                print(code)
+                code += [f"\tsw	$t0 , {symbol_path}  # add from memory to t0"]
             # elif assign.expr.v_type == TYPE_IS_DOUBLE:          #todo should be compelete
             #     code += double_const(symbol_table,assign.expr)
             # elif assign.expr.v_type == TYPE_IS_BOOL:

@@ -11,7 +11,6 @@ class Assignment(Node):
     def cgen(self, symbol_table: SymbolTable):
         print("ASSIGN")
         code = CodeGenerator.assignment(symbol_table, self)
-        print("--------")
         print(code)
         return code
 
