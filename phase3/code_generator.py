@@ -343,8 +343,8 @@ class CodeGenerator:
                 #     code.append(f"\tjal _SimplePrintDouble")
 
 
-            code.append(f"\taddu $sp,$sp,{size}\t# clean parameters")
-        # code.append(f"\tjal _PrintNewLine")
+            # code.append(f"\taddu $sp,$sp,{size}\t# clean parameters")
+            code.append(f"\tjal _PrintNewLine")
         return code
 
     @staticmethod

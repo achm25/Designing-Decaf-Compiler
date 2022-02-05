@@ -1,4 +1,5 @@
 reserved_data = """
+NEWLINE:.asciiz "\\n"
 TRUE:.asciiz "true"
 FALSE:.asciiz "false"
 DOT: .asciiz "."
