@@ -959,10 +959,12 @@ class CodeGenerator:
 
     @staticmethod
     def function_call(symbol_table,function):
+        code = []
         print("Cccccccc")
         print(function.identifier.name)
         symbol_table.current_scope.find_function(function.identifier.name)
-        return []
+        code += [f"\tjal {function.identifier.name}"]
+        return code
 
     @staticmethod
     def method_call(symbol_table):

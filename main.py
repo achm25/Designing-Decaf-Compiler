@@ -213,7 +213,7 @@ if __name__ == '__main__':
     # test()
     test1 = r"""
        int test(){
-       
+            Print(3);
        }
        
        int main(){
