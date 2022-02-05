@@ -22,10 +22,12 @@ class Scope:
         if self.parent_scope is None:
             return self.name
 
+
         name = ""
         root = self.parent_scope
         while root is not None:
             name = root.name + "_" + name
-            root = self.parent_scope
+            root = root.parent_scope
+
 
         return name + self.name
