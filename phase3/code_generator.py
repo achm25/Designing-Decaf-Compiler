@@ -31,7 +31,35 @@ class CodeGenerator:
             l_operand_type = CodeGenerator.get_type(node.l_operand, symbol_table)
             return l_operand_type
         if type(node).__name__ == "Const":
-            return node.name
+            return node.v_type
+
+    @staticmethod
+    def minus_operation(symbol_table, operation):
+        code = operation.expression.cgen(symbol_table)
+        operand_type = CodeGenerator.get_type(operation.expression, symbol_table)
+        if operand_type == "int":
+            code += [
+                f"\tlw $t0,4($sp)\t",
+                f"\taddu $sp,$sp,4\t",
+            ]
+            code.append("addi $t1, $zero, -1")
+            code.append("mul $t2,$t0,$t1")
+            code += [
+                f"\tsubu $sp,$sp,4\t",
+                f"\tsw $t2,4($sp)\t",
+            ]
+        else:
+            code += [
+                f"\tl.d $f0,0($sp)",
+                f"\taddu $sp,$sp,8\t",
+            ]
+            code.append("addi $f2, $zero, -1")
+            code.append("mul.d $f4, $f2, $f0")
+            code += [
+                f"\tsubu $sp,$sp,8\t",
+                f"\ts.d $f4,0($sp)\t",
+            ]
+        return code
 
     @staticmethod
     def new_variable(symbol_table, variable):
@@ -445,7 +473,9 @@ class CodeGenerator:
         code = []
         code += expr.l_operand.cgen(symbol_table)
         code += expr.r_operand.cgen(symbol_table)
-        if expr.l_operand.v_type == "int":
+        l_operand_type = CodeGenerator.get_type(expr.l_operand, symbol_table)
+
+        if l_operand_type == "int":
             code += [
                 f"\tlw $t0,4($sp)\t#copy top stack to t0",
                 f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
@@ -485,8 +515,9 @@ class CodeGenerator:
         code = []
         code += expr.l_operand.cgen(symbol_table)
         code += expr.r_operand.cgen(symbol_table)
-        #todo work with int_const_counter and % to temp1 and temp2
-        if expr.l_operand.v_type == "int":
+        l_operand_type = CodeGenerator.get_type(expr.l_operand, symbol_table)
+
+        if l_operand_type == "int":
             code += [
                 f"\tlw $t0,4($sp)\t#copy top stack to t0",
                 f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
@@ -526,7 +557,9 @@ class CodeGenerator:
         code = []
         code += expr.l_operand.cgen(symbol_table)
         code += expr.r_operand.cgen(symbol_table)
-        if expr.l_operand.v_type == "int":
+        l_operand_type = CodeGenerator.get_type(expr.l_operand, symbol_table)
+
+        if l_operand_type == "int":
             code += [
                 f"\tlw $t0,4($sp)\t#copy top stack to t0",
                 f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
@@ -566,7 +599,9 @@ class CodeGenerator:
         code = []
         code += expr.l_operand.cgen(symbol_table)
         code += expr.r_operand.cgen(symbol_table)
-        if expr.l_operand.v_type == "int":
+        l_operand_type = CodeGenerator.get_type(expr.l_operand, symbol_table)
+
+        if l_operand_type == "int":
             code += [
                 f"\tlw $t0,4($sp)\t#copy top stack to t0",
                 f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
@@ -606,7 +641,9 @@ class CodeGenerator:
         code = []
         code += expr.l_operand.cgen(symbol_table)
         code += expr.r_operand.cgen(symbol_table)
-        if expr.l_operand.v_type == "int":
+        l_operand_type = CodeGenerator.get_type(expr.l_operand, symbol_table)
+
+        if l_operand_type == "int":
             code += [
                 f"\tlw $t0,4($sp)\t#copy top stack to t0",
                 f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
@@ -684,7 +721,10 @@ class CodeGenerator:
         code = []
         code += expr.l_operand.cgen(symbol_table)
         code += expr.r_operand.cgen(symbol_table)
-        if expr.l_operand.v_type == "int":
+
+        l_operand_type = CodeGenerator.get_type(expr.l_operand, symbol_table)
+
+        if l_operand_type == "int":
             code += [
                 f"\tlw $t0,4($sp)\t#copy top stack to t0",
                 f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
@@ -722,9 +762,12 @@ class CodeGenerator:
     @staticmethod
     def multiplication_operation(symbol_table, expr):
         code = []
+
         code += expr.l_operand.cgen(symbol_table)
         code += expr.r_operand.cgen(symbol_table)
-        if expr.l_operand.v_type == "int":
+
+        l_operand_type = CodeGenerator.get_type(expr.l_operand, symbol_table)
+        if l_operand_type == "int":
             code += [
                 f"\tlw $t0,4($sp)\t#copy top stack to t0",
                 f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
@@ -877,7 +920,7 @@ class CodeGenerator:
                 find_symbol_in_memory = symbol_table.current_scope.find_symbol_path(assign.l_value.identifier.name) # if return , means we have this symbol
                 symbol_path = find_symbol_in_memory.root_generator() + "__" + assign.l_value.identifier.name  # return root path
                 code += [f"\tsw	$t0 , {symbol_path}  # add from memory to t0"]
-            elif assign_type == TYPE_IS_STRING:
+            elif r_identifier_type == TYPE_IS_STRING:
                 code += CodeGenerator.string_const(symbol_table,assign.expr)
                 which_temp = symbol_table.current_scope.string_const_counter % 2
                 code +=[f"\tlw	$t0, {tempStringVar}{which_temp}  # add from memory to t0"]
