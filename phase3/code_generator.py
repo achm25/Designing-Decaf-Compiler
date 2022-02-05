@@ -319,10 +319,11 @@ class CodeGenerator:
             f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
         ]
         code.append("or $t2,$t1,$t0")
-        code += [
-            f"\tsubu $sp,$sp,4\t# move sp down cause of push",
-            f"\tsw $t2,4($sp)\t#copy t2 to stack",
-        ]
+        code.append("sw	$t2, printBoolVal # store contents of register $t2 into RAM=")  # todo should be check
+        # code += [
+        #     f"\tsubu $sp,$sp,4\t# move sp down cause of push",
+        #     f"\tsw $t2,4($sp)\t#copy t2 to stack",
+        # ]
         return code
 
     @staticmethod
@@ -339,10 +340,11 @@ class CodeGenerator:
             f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
         ]
         code.append("and $t2,$t1,$t0")
-        code += [
-            f"\tsubu $sp,$sp,4\t# move sp down cause of push",
-            f"\tsw $t2,4($sp)\t#copy t2 to stack",
-        ]
+        code.append("sw	$t2, printBoolVal # store contents of register $t2 into RAM=")  # todo should be check
+        # code += [
+        #     f"\tsubu $sp,$sp,4\t# move sp down cause of push",
+        #     f"\tsw $t2,4($sp)\t#copy t2 to stack",
+        # ]
         return code
 
     @staticmethod
@@ -360,10 +362,11 @@ class CodeGenerator:
                 f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
             ]
             code.append("seq $t2,$t1,$t0")
-            code += [
-                f"\tsubu $sp,$sp,4\t# move sp down cause of push",
-                f"\tsw $t2,4($sp)\t#copy t2 to stack",
-            ]
+            code.append("sw	$t2, printBoolVal # store contents of register $t2 into RAM=")  # todo should be check
+            # code += [
+            #     f"\tsubu $sp,$sp,4\t# move sp down cause of push",
+            #     f"\tsw $t2,4($sp)\t#copy t2 to stack",
+            # ]
         else:
             counter = symbol_table.get_label()
             code += [
@@ -399,10 +402,11 @@ class CodeGenerator:
                 f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
             ]
             code.append("sne $t2,$t1,$t0")
-            code += [
-                f"\tsubu $sp,$sp,4\t# move sp down cause of push",
-                f"\tsw $t2,4($sp)\t#copy t2 to stack",
-            ]
+            code.append("sw	$t2, printBoolVal # store contents of register $t2 into RAM=") #todo should be check
+            # code += [
+            #     f"\tsubu $sp,$sp,4\t# move sp down cause of push",
+            #     f"\tsw $t2,4($sp)\t#copy t2 to stack",
+            # ]
         else:
             counter = symbol_table.get_label()
             code += [
@@ -438,10 +442,11 @@ class CodeGenerator:
                 f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
             ]
             code.append("slt $t2,$t1,$t0")
-            code += [
-                f"\tsubu $sp,$sp,4\t# move sp down cause of push",
-                f"\tsw $t2,4($sp)\t#copy t2 to stack",
-            ]
+            code.append("sw	$t2, printBoolVal # store contents of register $t2 into RAM=")  # todo should be check
+            # code += [
+            #     f"\tsubu $sp,$sp,4\t# move sp down cause of push",
+            #     f"\tsw $t2,4($sp)\t#copy t2 to stack",
+            # ]
         else:
             code += [
                 f"\tl.d $f0,0($sp)# move top stack to f0",
@@ -477,10 +482,11 @@ class CodeGenerator:
                 f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
             ]
             code.append("sle $t2,$t1,$t0")
-            code += [
-                f"\tsubu $sp,$sp,4\t# move sp down cause of push",
-                f"\tsw $t2,4($sp)\t#copy t2 to stack",
-            ]
+            code.append("sw	$t2, printBoolVal # store contents of register $t2 into RAM=")  # todo should be check
+            # code += [
+            #     f"\tsubu $sp,$sp,4\t# move sp down cause of push",
+            #     f"\tsw $t2,4($sp)\t#copy t2 to stack",
+            # ]
         else:
             counter = symbol_table.get_label()
             code += [
@@ -516,11 +522,11 @@ class CodeGenerator:
                 f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
             ]
             code.append("sgt $t2,$t1,$t0")
-            code.append("sw $t0,printBoolVal") #todo new should check
-            code += [
-                f"\tsubu $sp,$sp,4\t# move sp down cause of push",
-                f"\tsw $t2,4($sp)\t#copy t2 to stack",
-            ]
+            code.append("sw	$t2, printBoolVal # store contents of register $t2 into RAM=")  # todo should be check
+            # code += [
+            #     f"\tsubu $sp,$sp,4\t# move sp down cause of push",
+            #     f"\tsw $t2,4($sp)\t#copy t2 to stack",
+            # ]
         else:
             counter = symbol_table.get_label()
             code += [
@@ -556,10 +562,11 @@ class CodeGenerator:
                 f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
             ]
             code.append("sge $t2,$t1,$t0")
-            code += [
-                f"\tsubu $sp,$sp,4\t# move sp down cause of push",
-                f"\tsw $t2,4($sp)\t#copy t2 to stack",
-            ]
+            code.append("sw	$t2, printBoolVal # store contents of register $t2 into RAM=")  # todo should be check
+            # code += [
+            #     f"\tsubu $sp,$sp,4\t# move sp down cause of push",
+            #     f"\tsw $t2,4($sp)\t#copy t2 to stack",
+            # ]
         else:
             counter = 0
             code += [
@@ -591,10 +598,11 @@ class CodeGenerator:
                 f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
             ]
             code.append("add $t2,$t1,$t0")
-            code += [
-                f"\tsubu $sp,$sp,4\t# move sp down cause of push",
-                f"\tsw $t2,4($sp)\t#copy t2 to stack",
-            ]
+            code.append("sw	$t2, printIntVal # store contents of register $t2 into RAM=")  # todo should be check
+            # code += [
+            #     f"\tsubu $sp,$sp,4\t# move sp down cause of push",
+            #     f"\tsw $t2,4($sp)\t#copy t2 to stack",
+            # ]
         else:
             code += [
                 f"\tl.d $f0,0($sp)# move top stack to f0",
@@ -630,10 +638,11 @@ class CodeGenerator:
                 f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
             ]
             code.append("sub $t2,$t1,$t0")
-            code += [
-                f"\tsubu $sp,$sp,4\t# move sp down cause of push",
-                f"\tsw $t2,4($sp)\t#copy t2 to stack",
-            ]
+            code.append("sw	$t2, printIntVal # store contents of register $t2 into RAM=")  # todo should be check
+            # code += [
+            #     f"\tsubu $sp,$sp,4\t# move sp down cause of push",
+            #     f"\tsw $t2,4($sp)\t#copy t2 to stack",
+            # ]
         else:
             code += [
                 f"\tl.d $f0,0($sp)# move top stack to f0",
@@ -669,10 +678,11 @@ class CodeGenerator:
                 f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
             ]
             code.append("mul $t2,$t1,$t0")
-            code += [
-                f"\tsubu $sp,$sp,4\t# move sp down cause of push",
-                f"\tsw $t2,4($sp)\t#copy t2 to stack",
-            ]
+            code.append("sw	$t2, printIntVal # store contents of register $t2 into RAM=")  # todo should be check
+            # code += [
+            #     f"\tsubu $sp,$sp,4\t# move sp down cause of push",
+            #     f"\tsw $t2,4($sp)\t#copy t2 to stack",
+            # ]
         else:
             code += [
                 f"\tl.d $f0,0($sp)# move top stack to f0",
@@ -708,10 +718,11 @@ class CodeGenerator:
                 f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
             ]
             code.append("div $t2,$t1,$t0")
-            code += [
-                f"\tsubu $sp,$sp,4\t# move sp down cause of push",
-                f"\tsw $t2,4($sp)\t#copy t2 to stack",
-            ]
+            code.append("sw	$t2, printIntVal # store contents of register $t2 into RAM=")  # todo should be check
+            # code += [
+            #     f"\tsubu $sp,$sp,4\t# move sp down cause of push",
+            #     f"\tsw $t2,4($sp)\t#copy t2 to stack",
+            # ]
         else:
             code += [
                 f"\tl.d $f0,0($sp)# move top stack to f0",
@@ -747,10 +758,11 @@ class CodeGenerator:
         ]
         code.append("div $t2,$t1,$t0")
         code.append("mfhi $t2")
-        code += [
-            f"\tsubu $sp,$sp,4\t# move sp down cause of push",
-            f"\tsw $t2,4($sp)\t#copy t2 to stack",
-        ]
+        code.append("sw	$t2, printIntVal # store contents of register $t2 into RAM=")  # todo should be check
+        # code += [
+        #     f"\tsubu $sp,$sp,4\t# move sp down cause of push",
+        #     f"\tsw $t2,4($sp)\t#copy t2 to stack",
+        # ]
         return code
 
     @staticmethod

@@ -7,13 +7,13 @@ errorMsg: .asciiz "Semantic Error"
 printStringVal : .asciiz ""
 printIntVal : .word 0
 printDoubleVal : .double 0.0
-printBool : .asciiz "false"
+printBoolVal : .word 0
 tempIntVar1 : .word 0
 tempIntVar2 : .word 0
 tempDoubleVar1 : .double 0.0
 tempDoubleVar2 : .double 0.0
-tempBoolVar1 : .asciiz "false"
-tempBoolVar2 : .asciiz "false"
+tempBoolVar1 : .word 0
+tempBoolVar2 : .word 0
 tempStringVar1 : .asciiz ""
 tempStringVar2 : .asciiz ""
 """
@@ -141,7 +141,8 @@ _PrintBool:
         sw      $fp, 8($sp)
         sw      $ra, 4($sp)
         addiu   $fp, $sp, 8
-        lw      $t1, 4($fp)
+        
+        lw      $t1, printBool
         blez    $t1, fbr
         li      $v0, 4          # system call for print_str
         la      $a0, TRUE       # address of str to print
