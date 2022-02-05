@@ -213,9 +213,8 @@ if __name__ == '__main__':
     #test()
     test1 = r"""
 int main() {
-    int a;
-    int b;
-    a = 2;
+    string a;
+    a = "22";
     Print(a);
 }
 """
