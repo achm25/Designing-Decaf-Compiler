@@ -213,10 +213,12 @@ if __name__ == '__main__':
     #test()
     test1 = r"""
 int main() {
-    int a;
-    double b;
-    a + b;
+    Print(5);
+    Print(6);
+    Print(3);
+    Print(1);
 }
+
 """
 
     test1 = handleDefine(test1)
