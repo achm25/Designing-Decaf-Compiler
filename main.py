@@ -221,7 +221,10 @@ if __name__ == '__main__':
        
        int main(){
        
-            Print( 4 / 2);
+            int a;
+            a = 4 / 2;
+       
+            Print( 4/2);
             
             }
        

@@ -182,10 +182,8 @@ class CodeGenerator:
         new_scope_name = symbol_table.current_scope.name+"_"+"block"+str(symbol_table.current_scope.block_counter)
         curr_scope = symbol_table.new_scope(name=new_scope_name)
         code = []
-        print("BLOCK")
 
         for stm in block.block_statements:
-            print(type(stm).__name__ )
             if type(stm).__name__ == "Variable":
                 code += CodeGenerator.new_variable(symbol_table, stm)
             elif type(stm).__name__ == "IfStatement":
@@ -318,9 +316,7 @@ class CodeGenerator:
     def print_statement(symbol_table, print_node):
         code = []
         for expr in print_node.expr:
-            print("HERE I AM")
-            print(expr)
-            print(type(expr).__name__)
+
             code += expr.cgen(symbol_table)
             size = int_size
             #todo shlould handle call function and class in print
@@ -342,7 +338,6 @@ class CodeGenerator:
             if type(expr).__name__ == "IdentifierLValue" :
                 find_symbol_in_scope = symbol_table.current_scope.find_symbol(expr.identifier.name)
                 symbol_type = find_symbol_in_scope.v_type.name
-                print(symbol_type)
                 if  symbol_type == TYPE_IS_INT:
                     find_symbol_in_memory = symbol_table.current_scope.find_symbol_path(expr.identifier.name)  # if return , means we have this symbol
                     symbol_path = find_symbol_in_memory.root_generator() + "__" + expr.identifier.name  # return root path
@@ -379,12 +374,9 @@ class CodeGenerator:
             f"\tlw $t1,4($sp)\t#copy top stack to t0",
             f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
         ]
-        code.append("or $t2,$t1,$t0")
-        code.append("sw	$t2, printBoolVal # store contents of register $t2 into RAM=")  # todo should be check
-        # code += [
-        #     f"\tsubu $sp,$sp,4\t# move sp down cause of push",
-        #     f"\tsw $t2,4($sp)\t#copy t2 to stack",
-        # ]
+        code.append("\tor $t2,$t1,$t0")
+        code.append("\tsw	$t2, printBoolVal # store contents of register $t2 into RAM=")  # todo should be check
+
         return code
 
     @staticmethod
@@ -400,12 +392,9 @@ class CodeGenerator:
             f"\tlw $t1,4($sp)\t#copy top stack to t0",
             f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
         ]
-        code.append("and $t2,$t1,$t0")
-        code.append("sw	$t2, printBoolVal # store contents of register $t2 into RAM=")  # todo should be check
-        # code += [
-        #     f"\tsubu $sp,$sp,4\t# move sp down cause of push",
-        #     f"\tsw $t2,4($sp)\t#copy t2 to stack",
-        # ]
+        code.append("\tand $t2,$t1,$t0")
+        code.append("\tsw	$t2, printBoolVal # store contents of register $t2 into RAM=")  # todo should be check
+
         return code
 
     @staticmethod
@@ -422,12 +411,9 @@ class CodeGenerator:
                 f"\tlw $t1,4($sp)\t#copy top stack to t0",
                 f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
             ]
-            code.append("seq $t2,$t1,$t0")
-            code.append("sw	$t2, printBoolVal # store contents of register $t2 into RAM=")  # todo should be check
-            # code += [
-            #     f"\tsubu $sp,$sp,4\t# move sp down cause of push",
-            #     f"\tsw $t2,4($sp)\t#copy t2 to stack",
-            # ]
+            code.append("\tseq $t2,$t1,$t0")
+            code.append("\tsw	$t2, printBoolVal # store contents of register $t2 into RAM=")  # todo should be check
+
         else:
             counter = symbol_table.get_label()
             code += [
@@ -464,12 +450,9 @@ class CodeGenerator:
                 f"\tlw $t1,4($sp)\t#copy top stack to t0",
                 f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
             ]
-            code.append("sne $t2,$t1,$t0")
-            code.append("sw	$t2, printBoolVal # store contents of register $t2 into RAM=") #todo should be check
-            # code += [
-            #     f"\tsubu $sp,$sp,4\t# move sp down cause of push",
-            #     f"\tsw $t2,4($sp)\t#copy t2 to stack",
-            # ]
+            code.append("\tsne $t2,$t1,$t0")
+            code.append("\tsw	$t2, printBoolVal # store contents of register $t2 into RAM=") #todo should be check
+
         else:
             counter = symbol_table.get_label()
             code += [
@@ -508,28 +491,7 @@ class CodeGenerator:
             ]
             code.append("slt $t2,$t1,$t0")
             code.append("sw	$t2, printBoolVal # store contents of register $t2 into RAM=")  # todo should be check
-            # code += [
-            #     f"\tsubu $sp,$sp,4\t# move sp down cause of push",
-            #     f"\tsw $t2,4($sp)\t#copy t2 to stack",
-            # ]
-        else:
-            code += [
-                f"\tl.d $f0,0($sp)# move top stack to f0",
-                f"\taddu $sp,$sp,8\t# move sp higher cause of pop",
-            ]
-            code += [
-                f"\tl.d $f2,0($sp)# move top stack to f2",
-                f"\taddu $sp,$sp,8\t# move sp higher cause of pop",
-            ]
-            code.append("c.lt.d $f2,$f0")
-            code.append(f"bc1f __double_le__")
-            #TODO counter
-            code.append("li $t0, 1")
-            code.append(f"__double_le__:")
-            code += [
-                f"\tsubu $sp,$sp,4\t# move sp down cause of push",
-                f"\tsw $t0,4($sp)\t#copy t0 to stack",
-            ]
+
         return code
 
     @staticmethod
@@ -548,30 +510,9 @@ class CodeGenerator:
                 f"\tlw $t1,4($sp)\t#copy top stack to t0",
                 f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
             ]
-            code.append("sle $t2,$t1,$t0")
-            code.append("sw	$t2, printBoolVal # store contents of register $t2 into RAM=")  # todo should be check
-            # code += [
-            #     f"\tsubu $sp,$sp,4\t# move sp down cause of push",
-            #     f"\tsw $t2,4($sp)\t#copy t2 to stack",
-            # ]
-        else:
-            counter = symbol_table.get_label()
-            code += [
-                f"\tl.d $f0,0($sp)# move top stack to f0",
-                f"\taddu $sp,$sp,8\t# move sp higher cause of pop",
-            ]
-            code += [
-                f"\tl.d $f2,0($sp)# move top stack to f2",
-                f"\taddu $sp,$sp,8\t# move sp higher cause of pop",
-            ]
-            code.append("c.le.d $f2,$f0")
-            code.append(f"bc1f __double_le__{counter}")
-            code.append("li $t0, 1")
-            code.append(f"__double_le__{counter}:")
-            code += [
-                f"\tsubu $sp,$sp,4\t# move sp down cause of push",
-                f"\tsw $t0,4($sp)\t#copy t0 to stack",
-            ]
+            code.append("\tsle $t2,$t1,$t0")
+            code.append("\tsw	$t2, printBoolVal # store contents of register $t2 into RAM=")  # todo should be check
+
         return code
 
     @staticmethod
@@ -590,12 +531,9 @@ class CodeGenerator:
                 f"\tlw $t1,4($sp)\t#copy top stack to t0",
                 f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
             ]
-            code.append("sgt $t2,$t1,$t0")
-            code.append("sw	$t2, printBoolVal # store contents of register $t2 into RAM=")  # todo should be check
-            # code += [
-            #     f"\tsubu $sp,$sp,4\t# move sp down cause of push",
-            #     f"\tsw $t2,4($sp)\t#copy t2 to stack",
-            # ]
+            code.append("\tsgt $t2,$t1,$t0")
+            code.append("\tsw	$t2, printBoolVal # store contents of register $t2 into RAM=")  # todo should be check
+
         else:
             counter = symbol_table.get_label()
             code += [
@@ -632,26 +570,9 @@ class CodeGenerator:
                 f"\tlw $t1,4($sp)\t#copy top stack to t0",
                 f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
             ]
-            code.append("sge $t2,$t1,$t0")
-            code.append("sw	$t2, printBoolVal # store contents of register $t2 into RAM=")  # todo should be check
-            # code += [
-            #     f"\tsubu $sp,$sp,4\t# move sp down cause of push",
-            #     f"\tsw $t2,4($sp)\t#copy t2 to stack",
-            # ]
-        else:
-            counter = 0
-            code += [
-                f"\tl.d $f0,0($sp)# move top stack to f0",
-                f"\taddu $sp,$sp,8\t# move sp higher cause of pop",
-            ]
-            code += [
-                f"\tl.d $f2,0($sp)# move top stack to f2",
-                f"\taddu $sp,$sp,8\t# move sp higher cause of pop",
-            ]
-            code.append("c.lt.d $f2,$f0")
-            code.append(f"bc1t __double_le__{counter}")
-            code.append("li $t0, 1")
-            code.append(f"__double_le__{counter}:")
+            code.append("\tsge $t2,$t1,$t0")
+            code.append("\tsw	$t2, printBoolVal # store contents of register $t2 into RAM=")  # todo should be check
+
         return code
 
     @staticmethod
@@ -670,12 +591,8 @@ class CodeGenerator:
                 f"\tlw $t1,4($sp)\t#copy top stack to t0",
                 f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
             ]
-            code.append("add $t2,$t1,$t0")
-            code.append("sw	$t2, printIntVal # store contents of register $t2 into RAM=")  # todo should be check
-            # code += [
-            #     f"\tsubu $sp,$sp,4\t# move sp down cause of push",
-            #     f"\tsw $t2,4($sp)\t#copy t2 to stack",
-            # ]
+            code.append("\tadd $t2,$t1,$t0")
+            code.append("\tsw	$t2, printIntVal # store contents of register $t2 into RAM=")  # todo should be check
         else:
             code += [
                 f"\tl.d $f0,0($sp)# move top stack to f0",
@@ -715,24 +632,8 @@ class CodeGenerator:
             ]
             code.append("sub $t2,$t1,$t0")
             code.append("sw	$t2, printIntVal # store contents of register $t2 into RAM=")  # todo should be check
-            # code += [
-            #     f"\tsubu $sp,$sp,4\t# move sp down cause of push",
-            #     f"\tsw $t2,4($sp)\t#copy t2 to stack",
-            # ]
-        else:
-            code += [
-                f"\tl.d $f0,0($sp)# move top stack to f0",
-                f"\taddu $sp,$sp,8\t# move sp higher cause of pop",
-            ]
-            code += [
-                f"\tl.d $f2,0($sp)# move top stack to f2",
-                f"\taddu $sp,$sp,8\t# move sp higher cause of pop",
-            ]
-            code.append("sub.d $f4, $f2, $f0")
-            code += [
-                f"\tsubu $sp,$sp,8",
-                f"\ts.d $f4,0($sp)",
-            ]
+
+
         return code
 
     @staticmethod
@@ -756,26 +657,10 @@ class CodeGenerator:
                 f"\tlw $t1,4($sp)\t#copy top stack to t0",
                 f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
             ]
-            code.append("mul $t2,$t1,$t0")
-            code.append("sw	$t2, printIntVal # store contents of register $t2 into RAM=")  # todo should be check
-            # code += [
-            #     f"\tsubu $sp,$sp,4\t# move sp down cause of push",
-            #     f"\tsw $t2,4($sp)\t#copy t2 to stack",
-            # ]
-        else:
-            code += [
-                f"\tl.d $f0,0($sp)# move top stack to f0",
-                f"\taddu $sp,$sp,8\t# move sp higher cause of pop",
-            ]
-            code += [
-                f"\tl.d $f2,0($sp)# move top stack to f2",
-                f"\taddu $sp,$sp,8\t# move sp higher cause of pop",
-            ]
-            code.append("mul.d $f4, $f2, $f0")
-            code += [
-                f"\tsubu $sp,$sp,8",
-                f"\ts.d $f4,0($sp)",
-            ]
+            code.append("\tmul $t2,$t1,$t0")
+            code.append("\tsw	$t2, printIntVal # store contents of register $t2 into RAM=")  # todo should be check
+
+
         return code
 
     @staticmethod
@@ -796,27 +681,12 @@ class CodeGenerator:
                 f"\tlw $t1,4($sp)\t#copy top stack to t0",
                 f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
             ]
-            code.append("div $t2,$t1,$t0")
-            code.append("sw	$t2, printIntVal # store contents of register $t2 into RAM=")  # todo should be check
-            print("ccccsad")
-            # code += [
-            #     f"\tsubu $sp,$sp,4\t# move sp down cause of push",
-            #     f"\tsw $t2,4($sp)\t#copy t2 to stack",
-            # ]
-        else:
-            code += [
-                f"\tl.d $f0,0($sp)# move top stack to f0",
-                f"\taddu $sp,$sp,8\t# move sp higher cause of pop",
-            ]
-            code += [
-                f"\tl.d $f2,0($sp)# move top stack to f2",
-                f"\taddu $sp,$sp,8\t# move sp higher cause of pop",
-            ]
-            code.append("div.d $f4, $f2, $f0")
-            code += [
-                f"\tsubu $sp,$sp,8",
-                f"\ts.d $f4,0($sp)",
-            ]
+
+            code.append("\tdiv $t2,$t1,$t0")
+            code.append(f"\tsw	$t2, {printIntVal} # store contents of register $t2 into RAM=")  # todo should be check
+
+
+
         return code
 
     @staticmethod
@@ -845,10 +715,7 @@ class CodeGenerator:
         code = ["\tjal _ReadInteger"]
         which_temp = symbol_table.current_scope.int_const_counter % 2
         code += [f"\tsw	$t0, {tempIntVar}{which_temp}  # add from memory to t0"]
-        print("ccccc")
-        # find_symbol_in_memory = symbol_table.current_scope.find_symbol_path(assign.l_value.identifier.name)  # if return , means we have this symbol
-        # symbol_path = find_symbol_in_memory.root_generator() + "__" + assign.l_value.identifier.name  # return root path
-        # code += [f"\tsw	$t0 , {symbol_path}  # add from memory to t0"]
+
 
         return code
 
@@ -908,15 +775,12 @@ class CodeGenerator:
     @staticmethod
     def assignment(symbol_table, assign):
         code = []
-        print('cdddd')
         l_identifier_type = CodeGenerator.get_type(assign.l_value, symbol_table)
         r_identifier_type = CodeGenerator.get_type(assign.expr, symbol_table)
-        print(l_identifier_type)
-        print(r_identifier_type)
-        print(type(assign.expr).__name__)
+
 
         if r_identifier_type != l_identifier_type and r_identifier_type is not None:
-            print("Semantic Error type 1")
+            raise  Exception("Semantic Error type 1")
             return code
 
         if type(assign.expr).__name__ == "ReadInteger":
@@ -935,7 +799,10 @@ class CodeGenerator:
                 code += [f"\tsw	$t0 , {symbol_path}  # add from memory to t0"]
 
         if type(assign.expr).__name__ == "Expression":
-            assign.expr.cgen(symbol_table)
+            code += assign.expr.cgen(symbol_table)
+            find_symbol_in_memory = symbol_table.current_scope.find_symbol_path(assign.l_value.identifier.name)  # if return , means we have this symbol
+            symbol_path = find_symbol_in_memory.root_generator() + "__" + assign.l_value.identifier.name  # return root path
+            code += [f"\tsw	$t0 , {symbol_path}  # add from memory to t0"]
 
         if type(assign.expr).__name__ == "IdentifierLValue":
             return code
@@ -986,8 +853,7 @@ class CodeGenerator:
     @staticmethod
     def function_call(symbol_table,function):
         code = []
-        print("Cccccccc")
-        print(function.identifier.name)
+
         symbol_table.current_scope.find_function(function.identifier.name)
         code += [f"\tjal {function.identifier.name}"]
         return code
@@ -1016,20 +882,16 @@ class CodeGenerator:
 
     @staticmethod
     def double_const(symbol_table,constant):
-        print("cgen bool const")
-        print(value)
+        pass
 
     @staticmethod
     def bool_const(symbol_table,constant):
         code = ["cgen bool const"]
-        print("cgen bool const")
-        print(value)
         return code
 
     @staticmethod
     def null_const(symbol_table):
-        print("cgen null const")
-        print(symbol_table)
+        pass
 
     @staticmethod
     def string_const(symbol_table,constant):
@@ -1037,7 +899,6 @@ class CodeGenerator:
         string_const_address_in_data = f"str_const_number{symbol_table.current_scope.string_const_counter}"
         data = [f"{string_const_address_in_data}: .asciiz {constant.value}"]
         symbol_table.data_storage += data
-        print("cgen string const")
         which_temp = symbol_table.current_scope.string_const_counter % 2
         #find const value to stack
         code = [
