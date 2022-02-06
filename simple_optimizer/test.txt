@@ -1,0 +1,106 @@
+.globl main
+.text
+main:
+	subu $sp, $sp, 8	# decrement sp to make space to save ra, fp
+	sw $fp, 8($sp)	# save fp
+	sw $ra, 4($sp)	# save ra
+	addiu $fp, $sp, 8	# set up new fp
+	# Code for variable declaration b
+	subu $sp, $sp, 4	# Decrement sp to make space for variable b.
+	# End of code for variable declaration b.
+	# Code for variable declaration a
+	subu $sp, $sp, 4	# Decrement sp to make space for variable a.
+	# End of code for variable declaration a.
+	# Code for variable declaration c
+	subu $sp, $sp, 4	# Decrement sp to make space for variable c.
+	# End of code for variable declaration c.
+	# Code for variable declaration d
+	subu $sp, $sp, 4	# Decrement sp to make space for variable d.
+	# End of code for variable declaration d.
+	# Code for identifier a
+
+
+	beq $t0, $0, _PrintInt
+
+
+
+	lw $t0, -12($fp)	# Load value from -12($fp) to $t0
+	subu $sp,$sp,4	# move sp down cause of push
+	sw $t0,4($sp)	#copy t0 to stack
+	# End of code for identifier a. Identifier value is on top of stack now.
+	# Code for identifier a
+	lw $t0, -12($fp)	# Load value from -12($fp) to $t0
+	subu $sp,$sp,4	# move sp down cause of push
+	sw $t0,4($sp)	#copy t0 to stack
+	# End of code for identifier a. Identifier value is on top of stack now.
+	lw $t0,4($sp)	#copy top stack to t0
+	addu $sp,$sp,4	# move sp higher cause of pop
+	lw $t1,4($sp)	#copy top stack to t1
+	addu $sp,$sp,4	# move sp higher cause of pop
+mul $t2,$t1,$t0
+	subu $sp,$sp,4	# move sp down cause of push
+	sw $t2,4($sp)	#copy t2 to stack
+	lw $t0,4($sp)	#copy top stack to t0
+	addu $sp,$sp,4	# move sp higher cause of pop
+	sw $t0, -8($fp)	# assignment
+	subu $sp,$sp,4	# move sp down cause of push
+	sw $t0,4($sp)	#copy t0 to stack
+	lw $t0,4($sp)	#copy top stack to t0
+	addu $sp,$sp,4	# move sp higher cause of pop
+	# Code for identifier a
+	lw $t0, -12($fp)	# Load value from -12($fp) to $t0
+	subu $sp,$sp,4	# move sp down cause of push
+	sw $t0,4($sp)	#copy t0 to stack
+	# End of code for identifier a. Identifier value is on top of stack now.
+	# Code for identifier a
+	lw $t0, -12($fp)	# Load value from -12($fp) to $t0
+	subu $sp,$sp,4	# move sp down cause of push
+	sw $t0,4($sp)	#copy t0 to stack
+	# End of code for identifier a. Identifier value is on top of stack now.
+	lw $t0,4($sp)	#copy top stack to t0
+	addu $sp,$sp,4	# move sp higher cause of pop
+	lw $t1,4($sp)	#copy top stack to t1
+	addu $sp,$sp,4	# move sp higher cause of pop
+mul $t2,$t1,$t0
+	subu $sp,$sp,4	# move sp down cause of push
+	sw $t2,4($sp)	#copy t2 to stack
+	lw $t0,4($sp)	#copy top stack to t0
+	addu $sp,$sp,4	# move sp higher cause of pop
+	sw $t0, -16($fp)	# assignment
+	subu $sp,$sp,4	# move sp down cause of push
+	sw $t0,4($sp)	#copy t0 to stack
+	lw $t0,4($sp)	#copy top stack to t0
+	addu $sp,$sp,4	# move sp higher cause of pop
+	# Code for identifier b
+	lw $t0, -8($fp)	# Load value from -8($fp) to $t0
+	subu $sp,$sp,4	# move sp down cause of push
+	sw $t0,4($sp)	#copy t0 to stack
+	# End of code for identifier b. Identifier value is on top of stack now.
+	# Code for identifier c
+	lw $t0, -16($fp)	# Load value from -16($fp) to $t0
+	subu $sp,$sp,4	# move sp down cause of push
+	sw $t0,4($sp)	#copy t0 to stack
+	# End of code for identifier c. Identifier value is on top of stack now.
+	lw $t0,4($sp)	#copy top stack to t0
+	addu $sp,$sp,4	# move sp higher cause of pop
+	lw $t1,4($sp)	#copy top stack to t1
+	addu $sp,$sp,4	# move sp higher cause of pop
+add $t2,$t1,$t0
+	subu $sp,$sp,4	# move sp down cause of push
+	sw $t2,4($sp)	#copy t2 to stack
+	lw $t0,4($sp)	#copy top stack to t0
+	addu $sp,$sp,4	# move sp higher cause of pop
+	sw $t0, -20($fp)	# assignment
+	subu $sp,$sp,4	# move sp down cause of push
+	sw $t0,4($sp)	#copy t0 to stack
+	lw $t0,4($sp)	#copy top stack to t0
+	addu $sp,$sp,4	# move sp higher cause of pop
+	addiu $sp, $sp, 16 # Freed space
+	move $sp, $fp		# pop callee frame off stack
+	lw $ra, -4($fp)	# restore saved ra
+	lw $fp, 0($fp)	# restore saved fp
+	jr $ra		# return from function
+
+
+
+

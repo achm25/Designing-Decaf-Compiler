@@ -798,6 +798,7 @@ class CodeGenerator:
             ]
             code.append("div $t2,$t1,$t0")
             code.append("sw	$t2, printIntVal # store contents of register $t2 into RAM=")  # todo should be check
+            print("ccccsad")
             # code += [
             #     f"\tsubu $sp,$sp,4\t# move sp down cause of push",
             #     f"\tsw $t2,4($sp)\t#copy t2 to stack",
@@ -824,24 +825,7 @@ class CodeGenerator:
 
     @staticmethod
     def modulo_operation(symbol_table, expr):
-        code = []
-        code += expr.l_operand.cgen(symbol_table)
-        code += expr.r_operand.cgen(symbol_table)
-        code += [
-            f"\tlw $t0,4($sp)\t#copy top stack to t0",
-            f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
-        ]
-        code += [
-            f"\tlw $t1,4($sp)\t#copy top stack to t0",
-            f"\taddu $sp,$sp,4\t# move sp higher cause of pop",
-        ]
-        code.append("div $t2,$t1,$t0")
-        code.append("mfhi $t2")
-        code.append("sw	$t2, printIntVal # store contents of register $t2 into RAM=")  # todo should be check
-        # code += [
-        #     f"\tsubu $sp,$sp,4\t# move sp down cause of push",
-        #     f"\tsw $t2,4($sp)\t#copy t2 to stack",
-        # ]
+
         return code
 
     @staticmethod
