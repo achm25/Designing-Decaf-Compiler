@@ -35,31 +35,8 @@ class CodeGenerator:
 
     @staticmethod
     def minus_operation(symbol_table, operation):
-        code = operation.expression.cgen(symbol_table)
-        operand_type = CodeGenerator.get_type(operation.expression, symbol_table)
-        if operand_type == "int":
-            code += [
-                f"\tlw $t0,4($sp)\t",
-                f"\taddu $sp,$sp,4\t",
-            ]
-            code.append("addi $t1, $zero, -1")
-            code.append("mul $t2,$t0,$t1")
-            code += [
-                f"\tsubu $sp,$sp,4\t",
-                f"\tsw $t2,4($sp)\t",
-            ]
-        else:
-            code += [
-                f"\tl.d $f0,0($sp)",
-                f"\taddu $sp,$sp,8\t",
-            ]
-            code.append("addi $f2, $zero, -1")
-            code.append("mul.d $f4, $f2, $f0")
-            code += [
-                f"\tsubu $sp,$sp,8\t",
-                f"\ts.d $f4,0($sp)\t",
-            ]
-        return code
+
+        pass
 
     @staticmethod
     def new_variable(symbol_table, variable):

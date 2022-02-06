@@ -70,8 +70,7 @@ class DecafVisitor(Transformer):
         symbol_table = SymbolTable()
         code = ["\t.globl main", "\t.text"]
         for child in tree:
-            print("ccccc")
-            print(child)
+
             code_part = child.cgen(symbol_table)
             code += code_part
 
@@ -89,10 +88,7 @@ class DecafVisitor(Transformer):
     def variable_definition(tree):
         v_type = tree[0]
         v_ident = tree[1]
-        print("variable_definition")
-        print(tree)
         v_ident.i_type = v_type.name
-        print("cccccccc" , v_type.name)
         return Variable(v_type, v_ident)
 
     @staticmethod
@@ -105,8 +101,7 @@ class DecafVisitor(Transformer):
 
     @staticmethod
     def array_type(tree):
-        print(tree)
-        print("here")
+
         return ArrayType(tree[0])
 
     @staticmethod
@@ -118,7 +113,6 @@ class DecafVisitor(Transformer):
 
     @staticmethod
     def new_class(tree):
-        print("new_class")
         # TODO
         pass
 
@@ -131,7 +125,6 @@ class DecafVisitor(Transformer):
 
     @staticmethod
     def line_(tree):
-        print("new_class")
         # TODO
         return Line_()
 
@@ -156,8 +149,6 @@ class DecafVisitor(Transformer):
 
     def for_statement(self, tree):
         self.__number_of_loops += 1
-        print("FOR")
-        print(tree)
         return ForStatement(tree[0], tree[1], tree[2], tree[3], self.__number_of_loops)
 
     @staticmethod
@@ -170,8 +161,6 @@ class DecafVisitor(Transformer):
 
     @staticmethod
     def print_statement(tree):
-        print('ccccc1')
-        print(tree)
         return PrintNode(tree)
 
     @staticmethod
@@ -259,7 +248,6 @@ class DecafVisitor(Transformer):
         return ReadLine()
 
     def initiate_class(self, tree):
-        print("initiate_class")
         pass
 
     @staticmethod
@@ -268,8 +256,6 @@ class DecafVisitor(Transformer):
 
     @staticmethod
     def identifier_l_value(tree):
-        print("identifier_l_value")
-        print(tree)
         return IdentifierLValue(tree[0])
 
     @staticmethod
@@ -277,20 +263,15 @@ class DecafVisitor(Transformer):
         return OptionalExpr(tree[0])
 
     def member_access_l_value(self, tree):
-        print("member_access_l_value")
         pass
 
     def array_access_l_value(self, tree):
-        print("array_access_l_value")
-        print(tree)
         pass
 
     def function_call(self, tree):
-        print("function_call")
         return FunctionCall(tree[0],tree[1])
 
     def method_call(self, tree):
-        print("method_call")
         pass
 
     @staticmethod
@@ -299,9 +280,7 @@ class DecafVisitor(Transformer):
 
     @staticmethod
     def identifier(tree):
-        print("identifier")
-        print(tree)
-        print()
+
         return Identifier(tree[0])
 
     @staticmethod
