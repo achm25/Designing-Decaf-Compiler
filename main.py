@@ -222,23 +222,24 @@ if __name__ == '__main__':
        int main(){
        
             int a;
-            a = 4 / 2;
-       
-            Print( 4/2);
+            a = 4 ;
             
             }
        
         
 """
+    try:
+        test1 = handleDefine(test1)
 
-    test1 = handleDefine(test1)
+        tree = decaf_parser.parse(test1)
+        # print(decaf_parser.parse(test1).pretty())
+        code = DecafVisitor().transform(tree)
+        # print(code)
 
-    tree = decaf_parser.parse(test1)
-    print(decaf_parser.parse(test1).pretty())
-    code = DecafVisitor().transform(tree)
-    print(code)
-    with open("out.asm", "w") as output_file:
-        print("\n".join(code), file=output_file)
-    print("OK")
-    # except:
-    #     print("Syntax Error") #todo shlould be add
+
+        with open("out.asm", "w") as output_file:
+            print("\n".join(code), file=output_file)
+
+    except:
+        with open("out.asm", "w") as output_file:
+            print("Semantic Error", file=output_file)
