@@ -33,6 +33,9 @@ def handleDefine(t):
     return replace_define_word(text, word_list)
 
 
+
+
+
 decaf_parser = Lark(
     grammar=r"""
 
@@ -158,6 +161,8 @@ expr15: "(" expr ")" -> pass_up_first_element
     | "ReadLine" "(" ")" -> read_line
     | "new" identifier -> initiate_class
     | "NewArray" "(" expr "," type ")" -> initiate_array
+    | "__func__" -> func_
+    | "__line__" -> line_
 
 assignment: l_value "=" expr -> assignment
 
@@ -212,13 +217,11 @@ MULTILINE_COMMENT : /\/\*(\*(?!\/)|[^*])*\*\//
 if __name__ == '__main__':
     # test()
     test1 = r"""
-       int test(){
-            Print(3);
-       }
+
        
        int main(){
        
-            test();
+            Print( 5 % 2);
             
             }
        

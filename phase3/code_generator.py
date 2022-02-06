@@ -869,10 +869,52 @@ class CodeGenerator:
         return code
 
     @staticmethod
-    def read_line(symbol_table):
+    def read_line(symbol_table,tree):
         code = ["\tjal _ReadLine"]
         which_temp = symbol_table.current_scope.string_const_counter % 2
         code += [f"\tsw	$t0, {tempStringVar}{which_temp}  # add from memory to t0"]
+        return code
+
+
+    @staticmethod
+    def func_(symbol_table,tree):
+        code = []
+        symbol_table.current_scope.string_const_counter += 1
+        string_const_address_in_data = f"str_const_number{symbol_table.current_scope.string_const_counter}"
+
+        counter = -1
+        function_name = symbol_table.current_scope.name.split("_")
+        while "block" in function_name[0:counter]:
+            counter -= 1
+
+        function_name = symbol_table.current_scope.name.split("_")[counter]
+
+        data = [f"{string_const_address_in_data}: .asciiz {function_name}"]
+        symbol_table.data_storage += data
+        which_temp = symbol_table.current_scope.string_const_counter % 2
+        #find const value to stack
+        code = [
+            f"\tla $t0, {string_const_address_in_data}\t# load constant value to $t0",
+            f"\tsw $t0, {tempStringVar}{which_temp}\t# load constant value from $to to temp",
+        ]
+
+        return code
+
+
+    @staticmethod
+    def line_(symbol_table,tree):
+        code = []
+        symbol_table.current_scope.string_const_counter += 1
+        string_const_address_in_data = f"str_const_number{symbol_table.current_scope.string_const_counter}"
+        data = [f"{string_const_address_in_data}: .asciiz \"2\" "]  #todo should be cheked
+        symbol_table.data_storage += data
+        which_temp = symbol_table.current_scope.string_const_counter % 2
+        #find const value to stack
+        code = [
+            f"\tla $t0, {string_const_address_in_data}\t# load constant value to $t0",
+            f"\tsw $t0, {tempStringVar}{which_temp}\t# load constant value from $to to temp",
+        ]
+
         return code
 
     @staticmethod

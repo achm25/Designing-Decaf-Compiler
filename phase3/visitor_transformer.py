@@ -70,6 +70,8 @@ class DecafVisitor(Transformer):
         symbol_table = SymbolTable()
         code = ["\t.globl main", "\t.text"]
         for child in tree:
+            print("ccccc")
+            print(child)
             code_part = child.cgen(symbol_table)
             code += code_part
 
@@ -120,6 +122,20 @@ class DecafVisitor(Transformer):
         # TODO
         pass
 
+
+    @staticmethod
+    def func_(tree):
+
+        return Func_()
+
+
+    @staticmethod
+    def line_(tree):
+        print("new_class")
+        # TODO
+        return Line_()
+
+
     @staticmethod
     def statement_block(tree):
         statements = []
@@ -154,6 +170,8 @@ class DecafVisitor(Transformer):
 
     @staticmethod
     def print_statement(tree):
+        print('ccccc1')
+        print(tree)
         return PrintNode(tree)
 
     @staticmethod
