@@ -6,7 +6,7 @@ This project was done in three phases:<br>
 2. Parser
 3. Code generator (generates pseudo-assembly code)
 Optimazitaion
-4. 
+4. Optimization
 
 <img width="749" alt="com" src="https://github.com/achm25/compiler_fall_2021/assets/48030194/408036d9-3100-48f9-a82f-75d08b70f279">
 
