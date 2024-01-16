@@ -1,6 +1,6 @@
 # **Decaf** compiler:
 Compiler course final project implemented with the Python programming language.<br>
-Made for compiling kolang programming language, a language with syntaxes similar to Javascript.<br>
+Made for compiling decaf programming language, a language with syntaxes similar to Javascript.<br>
 This project was done in three phases:<br>
 1. Scanner
 2. Parser
